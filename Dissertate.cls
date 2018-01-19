@@ -286,7 +286,7 @@
 
 	\scshape{\Large{\bfseries{Università degli Studi di Padova}}} \\
 	\line(1, 0){400} \\
-	\scshape{\large{Department of Something}} \\
+	\scshape{\large{\@department}} \\
 
 	\vspace{5pt}
 	\small{\textit{Master Thesis in}}
@@ -308,16 +308,14 @@
 	  \vspace{1pt}
 	  \@advisor \hfill \@author\\
 	  Università di Padova \\
-	  \vspace{6pt}
-	  \textit{Co-supervisor} \\
-	  \@coadvisorOne \\
-	  \@coadvisorOneUniversity
-	  \vspace{10pt}
 	\end{flushleft}
 	\end{normalsize}
 	
+  \vspace*{\fill}
+	\scshape{\Large{\bfseries{A.A. 2017/18}}} \\
+
 	\end{center}
-	\vspace*{\fill}
+  \vspace*{\fill}
 	\singlespacing
 	\cleardoublepage
 }
