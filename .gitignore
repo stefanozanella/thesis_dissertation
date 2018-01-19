@@ -1,0 +1,8 @@
+.logged
+*.aux
+*.bbl
+*.blg
+*.lof
+*.out
+*.toc
+dissertation.pdf
