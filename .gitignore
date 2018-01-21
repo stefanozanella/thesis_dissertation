@@ -3,6 +3,7 @@
 *.bbl
 *.blg
 *.lof
+*.lot
 *.out
 *.toc
 dissertation.pdf
