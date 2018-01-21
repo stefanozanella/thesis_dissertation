@@ -1,6 +1,26 @@
 %!TEX root = ../dissertation.tex
-% the abstract
+% Abstract
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo, ipsum sed pharetra gravida, orci magna rhoncus neque, id pulvinar odio lorem non turpis. Nullam sit amet enim. Suspendisse id velit vitae ligula volutpat condimentum. Aliquam erat volutpat. Sed quis velit. Nulla facilisi. Nulla libero. Vivamus pharetra posuere sapien. Nam consectetuer. Sed aliquam, nunc eget euismod ullamcorper, lectus nunc ullamcorper orci, fermentum bibendum enim nibh eget ipsum. Donec porttitor ligula eu dolor. Maecenas vitae nulla consequat libero cursus venenatis. Nam magna enim, accumsan eu, blandit sed, blandit a, eros.
+Since it's first incarnation in the 70s under the "NAVSTAR" name, satellite
+positioning acquired more and more relevance in the life of everyone. Directly
+or indirectly, we all rely on technological aids to precisely define our
+position. This exponential trend uncovered in recent years the need to secure
+the information transmitted by legitimate satellites: military signals are
+encrypted before transmission with schemes that allow only an authorized and
+restricted set of users, but for the civil case such a restriction clashes with
+the idea of having an open signal accessible by anyone. Yet, leaving the
+transmitted data unprotected opens the door to various kinds of attack. To name
+a clear example, it suffices to think about spoofing the signal received by an
+aircraft, in a way that modifies its trajectory to achieve catastrophic
+consequences.
 
-Quisque facilisis erat a dui. Nam malesuada ornare dolor. Cras gravida, diam sit amet rhoncus ornare, erat elit consectetuer erat, id egestas pede nibh eget odio. Proin tincidunt, velit vel porta elementum, magna diam molestie sapien, non aliquet massa pede eu diam. Aliquam iaculis. Fusce et ipsum et nulla tristique facilisis. Donec eget sem sit amet ligula viverra gravida. Etiam vehicula urna vel turpis. Suspendisse sagittis ante a urna. Morbi a est quis orci consequat rutrum. Nullam egestas feugiat felis. Integer adipiscing semper ligula. Nunc molestie, nisl sit amet cursus convallis, sapien lectus pretium metus, vitae pretium enim wisi id lectus. Donec vestibulum. Etiam vel nibh. Nulla facilisi. Mauris pharetra. Donec augue. Fusce ultrices, neque id dignissim ultrices, tellus mauris dictum elit, vel lacinia enim metus eu nunc.
+It is with the introduction of a satellite constellation operated by the
+European Union under the name of Galileo that the topic of data authentication
+for open GNSS signal took a practical turn. Some authentication schemes have
+been developed on paper to suit the low data rate available, resulting in ESA
+releasing an update to Galileo's ICD to include an implementation of TESLA, a
+protocol suited to authenticate streams of data that makes no assumption on the
+time when a receiver starts receiving the radio signal.\
+In this paper a practical implementation of TESLA on a SDR Galileo
+simulator is presented, together with an analysis of its performance and
+possible improvements.
