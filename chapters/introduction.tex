@@ -3,15 +3,6 @@
 \label{introduction}
 
 %- context
-%  - other systems, introduce Galileo
-%  - evolution in the space vehicles technology
-%  - evolution of the technology itself:
-%    - increase in performances by aided positioning (GBAS, WiFi)
-%    - GPS signal evolution
-%- statement of the problem
-%  - with the current state-of-art there is no security for civil clients
-%  - only secure transmission is for military purposes, uses encryption which
-%cannot work for an open signal
 %- statement of the response
 %  - intense research in the past years
 %  - ESA selected one algorithm: TESLA
@@ -46,6 +37,75 @@ future, it's undeniable that GPS plays a central role in the definition of this
 new reality.
 
 Following the success of the American experiment, other global powers decided to
-build their own version of GPS. As of today Russia, China, European Union and
-Japan operate their own satellite constellation for positioning purposes - even
-if each to a different degree of platform maturity, stability, scale and reach.
+build their own version of GPS. As of today Russia, China, European Union, India
+and Japan operate their own satellite constellation for positioning purposes -
+even if each to a different degree of platform maturity, stability, scale and
+reach.
+
+Russian GLONASS is the oldest of these newer constellations, and reaching a
+precision close to that of GPS. The Chinese BeiDou, Indian IRNSS and Japanese
+QZSS are all considered as of now regional systems, meaning they only cover a
+limited area around their respective country of origin.
+
+Possibly the most promising development is provided by the European Galileo
+constellation, the youngest of the systems mentioned so far. With a nominal
+accuracy of 1 meter for civil signal it promises to outperform the current GPS
+capabilities. This constellation is currently operational with 14 satellites,
+with a planned constellation of 30 space vehicles; at the same time, research is
+still being held under many aspects of the system.
+
+No matter the size and age of these systems, overall satellite positioning
+technology has seen various steps of improvements over the years, and in two
+main areas: hardware improvements on the space vehicles and optimizations in the
+usage of the allocated radio frequencies. GPS space vehicles have been
+continuously modernized, resulting in the release of 7 different satellite
+versions (blocks I to IIIA), and another 2 planned but not yet scheduled (IIIB
+and IIIC). Improvements generally range across improvements of nominal life,
+increases in the radio transmission performance (e.g. signal power at Earth's
+surface) and hardware addition to better cope with errors (e.g. addition of
+laser retro-reflectors in block IIIA to disentangle clock errors from ephemeris
+errors). \\ 
+Another reason for the development of new space vehicles is to allow
+deployment of new signals. For example, the last planned block of GPS satellites
+is going to introduce 3 new signals (L1C, L2C and M). Each of them improves
+on the existing signals allowing for increased robustness against interference
+and data loss, and higher accuracy through increased bandwidth, longer spreading
+codes and higher power.
+
+Together with this, recent developments have also happened in the direction of
+enhancing satellite positioning by using other, more local sources. For example,
+aviation has stringent needs in terms of monitoring and client warning in case
+of, e.g., clock problems. In such cases aircrafts must be notified in real-time
+that they can't rely on a GNSS for precision approach. Neither GPS nor GLONASS
+support this use case, so a support system was developed under the name of GBAS
+(Ground-Based Augmentation System). Aside from this, a cluster of other
+augmentation systems with similar purposes have been deployed; such systems go
+under the name of SBAS (Satellite-Based Augmentation System).\\
+More recently, smartphones have begun to support augmentation of the satellite
+signal through both WiFi and cell tower triangulation, resulting in better user
+experiences in terms of faster and more precise resolution of the user's
+position.
+
+Despite all these efforts to improve on the original GPS signal, little to no
+practical development has been made so far in making the civil signal secure.
+Current signals position themselves on two very far end of the security
+spectrum. On one side, military signals provide security through encryption;
+this not only provides state-of-the-art security to the signal, but also allows
+for restricted access to it: only receivers with authorized access are able to
+decode the signal. On the other side of the spectrum, use of civil signals is by
+nature open to everyone, but as of today there is no mechanism to guarantee the
+authenticity of the signal itself. Malicious users can choose from a wide range
+of spoofing and replay attacks, allowing for almost undisturbed disruption of
+service. While letting a user think they're located in a remote island while
+being in the middle of a most crowded city might appear like a practical joke,
+even a subtle change in the position or velocity of an aircraft might have
+catastrophic consequences. Even without putting lives at risk, attacks that aim
+at drifting a receiver's clock can be a component of more complex network
+attacks - as many security algorithms rely on coarsely precise clocks for
+avoiding replay attacks. If nothing else, a whole class of denial of service
+attacks can be conceived exploiting the vulnerability of today's civil
+positioning technologies.
+
+In recent years this topic gained a strong momentum, and research on different
+levels and different directions has been performed to solve the problem of
+securing GNSS signals.
