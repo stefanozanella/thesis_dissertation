@@ -2,15 +2,8 @@
 \chapter{Introduction}
 \label{introduction}
 
-%- context
-%- statement of the response
-%  - intense research in the past years
-%  - ESA selected one algorithm: TESLA
-%  - what guarantees TESLA provides
-%  - there are no implementations that make for easy tuning of parameters
-%  - a simulator for the whole Galileo signal spectrum is being developed at DEI
-%  - the simulator can also help test the configuration and operation of TESLA
-%- roadmap of the thesis
+% TODO
+% - roadmap of the thesis
 
 Since its introduction in 1973, GPS has seen tremendous growth in adoption.
 Thanks to the proliferation of use cases, positioning technologies have become
@@ -87,7 +80,7 @@ experiences in terms of faster and more precise resolution of the user's
 position.
 
 Despite all these efforts to improve on the original GPS signal, little to no
-practical development has been made so far in making the civil signal secure.
+practical development has so far been made in making the civil signal secure.
 Current signals position themselves on two very far end of the security
 spectrum. On one side, military signals provide security through encryption;
 this not only provides state-of-the-art security to the signal, but also allows
@@ -108,4 +101,33 @@ positioning technologies.
 
 In recent years this topic gained a strong momentum, and research on different
 levels and different directions has been performed to solve the problem of
-securing GNSS signals.
+securing GNSS signals. Proposed solutions can be generally categorized based
+on what part of the GNSS signal they aim to protect. A number of proposals have
+been developed to make the spreading codes more robust, to prevent from, e.g.,
+selective-delay attacks. These techniques seem to provide better overall
+security but are arguably more demanding on the receiver side in terms of
+implementation. A simpler general approach is instead that of leaving the
+overall signal structure unchanged, protecting only the navigation message
+carried by the signal. It is this last approach that has been currently taken to
+protect Galileo's public regulated service in the form of the TESLA protocol.
+
+The TESLA protocol is an asymmetric data authentication protocol specifically
+designed to work over a continuous, real-time stream of data over a lossy
+channel. The main idea behind it is that of using hash chains to generate
+message authentication codes, with keys being revealed periodically to allow for
+verification of previously-received messages. In a recent proposal, the
+theoretical protocol has been adapted to fit the current Galileo data signal by
+taking advantage of the reserved bit blocks factored into the actual frame
+structure, which allows for support over the E1b and E1c signals. 
+
+As of today, the protocol remains in form of proposal, but in the course of 2018
+it's supposed to be part of the Signal in Space (SIS) testing. The goal of this
+publication is to provide a software implementation of this scheme that follows
+the guidelines approved by ESA, to allow for easy but accurate testing of the
+operational parameters that are going to be subject to change and/or remain
+variable in the final implementation. This effort joins forces with the
+more-GOSSIP project being developed at the Department of Electrical Engineering
+of the Università degli Studi di Padova. This project aims at developing a
+software simulator that can test a number of possible attacks on Galileo (and
+GPS) signals, and implementation of the proposed Galileo OSNMA (Open Service
+Navigation Message Authentication) is part of it.
