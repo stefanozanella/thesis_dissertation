@@ -1,7 +1,9 @@
 Todo:
-  Write introduction
   Divide introduction in paragraphs
+  Ask Gianluca to verify claims in introduction
+  Write thesis roadmap in introduction
   Trim down abstract
+  Add table with GPS block evolution
 
 Abstract:
   motivation, problem statement, approach, results, and conclusions
@@ -13,7 +15,33 @@ Introduction:
 
 Resources:
   http://www.insidegnss.com/node/1633 -> possible references
-  https://www.nav.ei.tum.de/fileadmin/w00bkq/www/Colloquium/colloquium_kuhn_slides.pdf
--> good overview of possible auth techniques plus references
+  https://www.nav.ei.tum.de/fileadmin/w00bkq/www/Colloquium/colloquium_kuhn_slides.pdf -> good overview of possible auth techniques plus references
   https://www.cl.cam.ac.uk/~mgk25/gps-auth.pdf
   https://www.ion.org/publications/abstract.cfm?articleID=15184
+  https://www.gps.gov/governance/advisory/meetings/2017-06/buesnel.pdf -> threats and some statistics
+  http://gpsworld.com/directions-2013-the-future-of-gnss-security/ -> good article on threats
+  https://dl.acm.org/citation.cfm?id=2897166 -> survey of threats
+  http://ieeexplore.ieee.org/document/4745647/?reload=true -> History of GNSS
+
+
+TOC
+- fundamentals of satellite navigation
+  - ranging using TOA measurements
+  - components of a GNSS
+- brief history of gnss (10)
+  - history of gps (3)
+  - history of galileo (3)
+  - other constellations (2)
+  - interoperability challenges (1)
+  - future vision (1)
+- the problem of authenticating galileo OS data
+  - how does galileo signal works
+  - threat models 
+    - jamming
+    - spoofing
+- proposed solutions
+- overview of the more gossip software simulator
+- implementing tesla in the simulator
+- performance analysis
+- potential issues
+- future work
