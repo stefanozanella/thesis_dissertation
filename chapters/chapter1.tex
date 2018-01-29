@@ -129,6 +129,98 @@ signal design. At the same time, a strong formal cooperation between EU and U.S.
 resulted in the release of a framework to achieve full interoperability and
 radio frequency compatibility between Galileo and GPS.
 
+\subsection{Service offering}
+Similarly to GPS, Galileo's signal plan is intended to offer open civil access
+as well as access restricted to authorized users. Differently than GPS though,
+the service plan for Galileo includes from the start a broader range of options:
+\begin{itemize}
+  \item \textbf{Open Service} provides positioning and timing information
+    worldwide, and is meant to be accessible free of charge from any user
+    equpped with a Galileo compatible navigation receiver. This is similar to
+    the service level of GPS L1 C/A, L2C or L5
+  \item \textbf{Public Regulated Service} provides the same capabilities as the
+    Open Service signal, but it's meant to be restricted to only
+    government-authorized users, for use in sensitive applications. This is
+    similar to the service level of GPS P(Y) or M codes
+  \item \textbf{Commercial Service} is included in the current service
+    specification but its definition is as of now undergoing. The idea for
+    the CS is to offer "added value" with respect to the Open Service, mainly in
+    terms of high accuracy and authentication. In addition, this service is
+    going to provide the possibility of globally transmitting external data in
+    real-time. This service offering is completely new in the GNSS landscape and
+    has currently no similar counterpart in other constellations
+  \item \textbf{Search and Rescue} is meant to enhance the current capability of
+    another system, namely LEOSAR, for use in assistance of users in distress.
+    Through SAR users that need assistance can transmit a beacon signal that can
+    be received by Galileo satellites and then relayed to ground stations
+    that can then proceed with locating the source of the beacon by reversing
+    the PVT equation normally used in GNSS
+  \item \textbf{Safety of Life} is a service aimed at offering worldwide system
+    integrity. It has been foreseen by the Galileo program but it's actual
+    implementation has been postponed to later phases
+\end{itemize}
+Each of these services is going to be available on one or more frequencies of
+Galileo's signal plan, which is described next.
+
+\subsection{Signal plan}
+
+\subsection{System architecture}
+Transmission and control of the described range of signals is performed within
+Galileo's system infrastructure, which is composed of three major blocks: the
+Core Infrastructure, Service Facilities and Support Facilities. 
+
+Galileo's Service Facilities provide steering corrections to the CI by
+monitoring the alignment of time and reference geodetic model with the
+international meteorological standard (UTC and ITRF, respectively).
+
+Galileo's Support Facilities are not directly involved in the routine provision
+of services but play a major role in the deployment, testing and subsequent
+control of satellites into orbit. 
+
+Galileo's CI is instead the main part of the system infrastructure and can be
+subsequently divided in three main segments: Galileo's Space Segment, Ground
+Control Segment and Ground Mission Segment.
+
+The Space Segment, as defined in the reference constellation, is composed of 24
+operative satellites distributed in 3 circular orbits with a radius of 29,600 km
+and an orbital period of approximately 14h. At the time of writing, information
+on the actual Galileo constellation can be found in XXXXXX.
+
+Galileo's satellites are currently divided in four families: Giove-A and Giove-B
+are the initial prototypes and have been used for the initial testing phase;
+their designed lifetime is of 27 months. Currently being deployed is the IOV
+family, with improved design and a projected lifetime of 12 years; these
+satellites are used for the In-Orbit Validation phase of the project. Similar to
+the IOV satellites are those in the last family, namely FOC; these are meant to
+support Galileo's Full Operational Capability and has been deployed starting
+from Q3 2014. In terms of functionalities, overall budget envelope and
+performances these last two families are close to each other.
+
+The constellation is managed during normal system operation by the GCS, which is
+composed of two kind of facilities: control centers (GCC) and telemetry stations
+(TT\&C). \\
+The GCCs perform duties related to monitoring and control of the
+constellation, together with planning, flight dynamics and operations
+preparation of the same.\\
+Through TT\&C, instead, ground control performs data exchange with the entire
+constellation through 11m antenna dishes that operates in the S-band. Normally
+these stations are used to perform tele-command of the satellites and to receive
+telemetry data that is further used for off-line satellite orbit determination.
+
+The signal sent to the user by spacecrafts is generated by the GMS, a network of
+sensor stations, control centers and up-link stations that interoperate to
+perform a distinct set of operations:
+\begin{itemize}
+  \item generation and distribution of Galileo System Time (GST) to satellites
+    and ground segments
+  \item generation and distribution of Galileo OS and PRS navigation messages
+  \item distribution of mission data provided by Galileo Service Facilities for
+    CS and SAR signals
+  \item provision of the physical interface with the US Naval Observatory for
+    generation of the GPS Galileo interoperability products like the GPS to
+    Galileo time offset
+\end{itemize}
+
 \section{Other constellations}
 
 \section{Interoperability challenges}
