@@ -294,7 +294,82 @@ role they're playing or will predictbly play in shaping up the future of a
 common GNSS infrastructure: Russian GLONASS and Chinese BeiDou.
 
 \subsection{GLONASS}
+With a history similar to that of GPS, the GLONASS program was initiated in the
+1970s to support military requirements. Later on, early tests demonstrated the
+possibility of handling also civilian use. The first launch dates back to 1982.
+Despite having caused interference within the radio astronomy observation band,
+development of the program continued steadily - even past the demise of the
+Soviet Union. In 1995 the last batch of satellites was launched to complete the
+constellation, which nominally consisted of 24 satellites. Shortly after,
+however, a number of older satellites failed and the Russians failed to
+replenish the constellation. In 2001, restoration of the degraded constellation
+was made a top government priority; since 2011 GLONASS is again fully
+operational with global availability.
+
+\par
+
+GLONASS constellation consists of 24 satellites, 21 of which fully operative and
+3 acting as spares. The satellites are organized in 3 orbital planes 120° apart
+from each other in right ascension with a period of 11 hours and 15 minutes.
+
+Such configuration provides continuous visibility of no less than 4 satellites
+to over 97\% of Earth's surface. A full 24 satellite configuration would instead
+provide continuous visibility of no less than 5 satellites to more than 99\% of
+the Earth's surface.
+
+\par
+
+Differently than other systems, GLONASS historically used FDMA as a multiplexing
+technique, which increases complexity on the receiver side but allows for better
+interference rejection properties. As of 2016, a new ICD was published
+containing new CDMA signals, namely three open (L1OC, L2OC and L3OC) and two
+restricted (L1SC and L2SC).
+
+The older FDMA signals are transmitted on a different frequency by each
+satellite in the L1 and L2 bands, following the equation
+\begin{equation}
+  \begin{array}{l}
+    f_{K1} = f_{01} + K \Delta f_1, \\
+    f_{K2} = f_{02} + K \Delta f_2
+  \end{array}
+\end{equation}
+
+where
+
+\begin{equation}
+  \begin{array}{l}
+    f_{01} = 1602 MHz, \Delta f_1 = 562.5 kHz \\
+    f_{02} = 1246 MHz, \Delta f_2 = 437.5 KHz
+  \end{array}
+\end{equation}
+
+To avoid interference with the radio astronomy band, the value of $K$ changes
+between satellites in a range that goes from -7 to 4. To account for just 12
+different available frequencies, antipodal satellites are going to transmit on
+the same frequency (i.e. will share the same value of $K$). Since these
+satellite pairs are on opposite sides of Earth's surface, users are not
+impacted.
+
+GLONASS signal is of two types: C/A code or P code. The latter is restricted to
+military use, while the former is open for civilian use. Both signal types
+transmit a navigation message with a rate of 50 bps. Also, both signals are
+composed by a PRN code message and a navigation message. The main content of the
+navigation message is represented by the ephemeris, but in addition to that
+GLONASS transmits other data such as epoch timing, synchronization bits,
+satellite health and age of data fields. Each transmission contains accurate
+ephemeris information for the transmitting satellite and approximate (i.e.
+almanac) information about all the satellites in the constellation.
+
 \subsection{BeiDou}
+Another global player in radio navigation satellite systems comes from China
+under the name of BeiDou. The initial concept was developed in the 1980s, and
+the first launch of an experimental satellite happened in the year 2000. In
+2007, the first version of BeiDou (BeiDou-1) became fully operative with a
+regional coverage of China and the surrounding countries.
+
+As of mid-2007, deployment of the BeiDou-2 system began with an expected
+timeline lasting till 2020, which will bring BeiDou-2 at full operativity and
+global coverage.
 
 \section{Interoperability challenges}
 
