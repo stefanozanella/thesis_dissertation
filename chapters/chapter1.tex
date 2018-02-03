@@ -46,7 +46,7 @@ the main responsibility of the ground segment - which includes a redundant
 Master Control Station (MCS), monitoring stations (MS) and ground antennas (GA).
 The MCS performs various functions like generating the navigation message,
 monitoring SVs health and performing housekeeping operations on them, and
-maintaining time synchronization against UTC. 
+maintaining time synchronization against UTC.
 
 In order to do so, the MCS communicates through satellites via GAs, which are
 deployed across the globe so that each satellite can be reached by one to four
@@ -196,7 +196,7 @@ types of information:
     calculate its coordinates in a Earth Centered, Earth Fixed (ECEF) reference
     frame
   \item Time information: such as GST, clock correction, GST-UTC and GST-GPS
-    conversion parameters 
+    conversion parameters
   \item Ionospheric correction: a set of parameters that allow receivers to
     adjust the PVT equation to account for ionospheric interference
 \end{itemize}
@@ -234,7 +234,7 @@ that receive a very faint signal, rather than users that move at high speed.
 \subsection{System architecture}
 Transmission and control of the described range of signals is performed within
 Galileo's system infrastructure, which is composed of three major blocks: the
-Core Infrastructure, Service Facilities and Support Facilities. 
+Core Infrastructure, Service Facilities and Support Facilities.
 
 Galileo's Service Facilities provide steering corrections to the CI by
 monitoring the alignment of time and reference geodetic model with the
@@ -242,7 +242,7 @@ international meteorological standard (UTC and ITRF, respectively).
 
 Galileo's Support Facilities are not directly involved in the routine provision
 of services but play a major role in the deployment, testing and subsequent
-control of satellites into orbit. 
+control of satellites into orbit.
 
 Galileo's CI is instead the main part of the system infrastructure and can be
 subsequently divided in three main segments: Galileo's Space Segment, Ground
@@ -369,8 +369,79 @@ regional coverage of China and the surrounding countries.
 
 As of mid-2007, deployment of the BeiDou-2 system began with an expected
 timeline lasting till 2020, which will bring BeiDou-2 at full operativity and
-global coverage.
+global coverage. This will consist of 35 satellites, organized in different
+group. 5 satellites will be on geostationary orbit; 3 of them will be on
+inclined geosynchronous orbit; finally, 27 of them will be displaced in 3 medium
+Earth orbits.
+
+BeiDou-2 will transmit on 5 bands: E1, E2, E5B and E6. The system will transmit
+two types of signal: a free service for civilian use and a restricted one for
+military and government use. The free service is claimed to have location
+accuracy of 10 m, time accuracy of 10 ns and velocity accuracy of 0.2 m/s. The
+military service instead will have a location accuracy of 0.1 m. The modulation
+of these signals uses CDMA techniques similar to that of Galileo; the chipping
+rate and the data rate are also comparable if not identical to that of Galileo
+OS.
+
+Although little is known about the actual structure of the system and the
+service levels to be offered, it's clear that the Chinese government is aiming
+at becoming more than competitive in the arena of radio navigation systems. The
+speed at which the Chinese deployed satellites in the past years hints at the
+idea that BeiDou-2 will be soon an equal alternative to GPS and Galileo.
 
 \section{Interoperability challenges}
+As the number of global systems increases, and as the radio spectrum gets more
+and more crowded, the problem of interoperability (or, put in different terms,
+that of interference) becomes more and more relevant. In general, a choice has
+to be made: should system be independent and completely isolate, or should their
+design be aware of the presence of other navigation systems?
+
+The answer came during the third meeting of of the Providers' Forum of the
+International Committee on Global Navigation Satellite Systems (ICG) in 2008.
+Here it was agreed that at a minimum all GNSS signals and services should be
+compatible. At the same time, to the maximum extent possible open signals and
+services should also be interoperable, in order to maximize benefit to all GNSS
+users.
+
+In the same committee, a contextual definition of the two terms was provided:
+\begin{itemize}
+  \item \textbf{Interoperability} refers to the capability for all the systems
+    to be used together to provide better capabilities at the user level than
+    each individual system, at a minimal additional receiver cost or complexity
+  \item \textbf{Compatibility} means that two systems can be used individually
+    or together with no unacceptable interference or other harm to the other
+    system. For this the ITU provides a framework for discussions on
+    radiofrequency compatibility.
+\end{itemize}
+
+\par
+
+This formal agreement resulted in a number of significant decision in the
+evolution of the design of all major GNSS.
+
+For example, when designing the frequency plan of Galileo, one of the drivers
+was the selection of common center frequencies for some of the signals: this was
+to prevent unnecessary increase in the cost of multi-frquency receivers and to
+make combined processing of phase observations possible.
+
+From the point of view of signal spreading modulation, the choice of CDMA was a
+significant step in the design of interoperable systems. On the same topic,
+while the initial definition of GLONASS used FDMA, new signals are being
+included that use CDMA.
+
+At the data level, two other notable examples are the choice of the coordinate
+reference frame and that of time reference. In particular, the Galileo
+Terrestrial Reference Frame and the GPS coordinate frame (WGS84) differ a few
+centimeters from the International Terrestrial Reference Frame, hence making the
+two interoperable for most applications. In the case of time, both GST and GPS
+time are different real-time realizations of UTC, and the service providers have
+agreed to broadcast the time offset between the two standards.
+
+The question of interoperability and compatibility has had repercussions also on
+the organizational and political level. Although later unsatisfied by the role
+in the project, China signed in 2004 an agreement on the cooperation in the
+Galileo program between the "Galileo Joint Undertaking" and the "National Remote
+Sensing of China", which resulted in 11 cooperations projects being signed
+within the program between China and EU in 2006.
 
 \section{The future of GNSS}

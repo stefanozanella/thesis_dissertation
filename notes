@@ -23,8 +23,21 @@ Resources:
   http://gpsworld.com/directions-2013-the-future-of-gnss-security/ -> good article on threats
   https://dl.acm.org/citation.cfm?id=2897166 -> survey of threats
   http://ieeexplore.ieee.org/document/4745647/?reload=true -> History of GNSS
-http://www.esa.int/Our_Activities/Navigation/Galileo/Galileo_navigation_signals_and_frequencies
+  http://www.esa.int/Our_Activities/Navigation/Galileo/Galileo_navigation_signals_and_frequencies
 -> Reasoning on Galileo signal plan design
+  http://www.insidegnss.com/auto/IG0607_CompassFinal.pdf -> Reverse engeneering
+of BeiDou-2
+  http://www.insidegnss.com/auto/IG0807_Gao-Lo_final.pdf -> COMPASS signal
+description
+  International committee on global navigation satellite systems (2008)
+Providers’ forum principles of compatibility and interoperability and their
+further definition,
+http://www.oosa.unvienna.org/oosa/SAP/gnss/icg/providersforum.html -> agreement
+on interoperability and compatibility
+Hein G (2006) GNSS interoperability: achieving a global system of systems or
+does everything have to be the same? InsideGNSS, Jan/Feb 2006 -> also on
+compatibility and interoperability
+
 
 
 TOC
@@ -39,7 +52,7 @@ TOC
   - future vision (1)
 - the problem of authenticating galileo OS data
   - how does galileo signal works
-  - threat models 
+  - threat models
     - jamming
     - spoofing
 - proposed solutions
