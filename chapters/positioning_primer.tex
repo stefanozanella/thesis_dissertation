@@ -1,0 +1,77 @@
+%!TEX root = ../dissertation.tex
+
+% outline
+% - theoretical framework (6)
+%   - functioning principle and requirements: TOA, triangulation, PVT, precise
+%   timing (1)
+%   - obtaining user to satellite range (2)
+%   - obtaining user position (2)
+%   - obtaining user velocity (1)
+% - practical aspects (4)
+%   - measuring time
+%   - determining satellite position
+%   - earth reference frame
+% - how a receiver works (?)
+
+\chapter{Satellite navigation fundamentals}
+
+No matter the GNSS under analysis, the fundamental principles that make radio
+satellite navigation work are the same. In this chapter we'll describe the
+equations that make satellite navigation a reality; understanding these
+mechanics will be of importance when talking about the different ways of
+authenticating a navigation signal.
+
+\section{Overview of ranging through TOA measurements}
+To introduce the problem of satellite navigation, let's assume a generic actor
+at position $P$ wanting to know its position in a three-dimensional coordinate
+frame. Let's assume also the presence of a beacon, whose position $T$ is fixed
+and precisely known. This beacon transmits messages at regular intervals, which
+the actor is capable of intercepting. These messages contain two pieces of
+information: the precise time $t_0$ at which the message was sent, and a
+description of $T$, i.e. the position of the beacon at the time of transmission.
+Let's also assume that the transmission happens over a medium with a specific
+speed of propagation $s$ determined by the law of physics. Finally, let's assume
+both actor and beacon are equipped with perfectly synchronized clocks, so that
+locally observed time for each party is equal to that of the other counterpart.
+
+Given these assumptions the actor has all the information needed to determine
+its position with respect to the beacon. The resolution of this problem is based
+on the Time Of Arrival (TOA) of the message. If the actor marks the time $t_1$
+at which the message arrives, then its distance from the beacon can be computed
+by multiplying the flight time of the message $t_1 - t_0$ by its travelling
+speed $s$. The resulting range measurement $r_1$ defines a sphere of radius
+$r_1$ centered at the position of the beacon $T$, and the actor position is a
+point of this sphere.
+
+To further narrow down the precise location of the actor $P$, it's sufficient to
+have another two beacons at positions different than $T$. With the same
+technique, the actor can determine its distance from the other two beacons.
+Determining its distance $r_2$ from the second beacon will mean its position is
+on a sphere of radius $r_2$ centered around the beacon. Intersecting this sphere
+with the sphere around the first beacon will yield a circumference (or, in its
+degenerate case, a point if the two spheres are tangent - a condition that will
+be ignored for now as it's not the general case). Repeating the measurement with
+the third beacon will also again yield a sphere of radius $r_3$ that can be
+intersected with the other two, resulting in the identification of two points,
+one being the actor's true position and the other being its mirror with respect
+to the beacons' plane. In order to uniquely determine its position, the actor
+can either perform a fourth measurement, or introduce other constraints in the
+equation that automatically exclude one of the two points. For example, for
+users on the Earth's surface, the point with lower altitude can be selected with
+no further measurement.
+
+\par
+
+This contrived example forms the basic of triangulation through TOA measurement,
+which is at the base of GNSS. In the real world, though, the hypotesis that
+allowed the problem to be solved in such simple terms is never true, and using
+this simplified set of constraints is not enough to provide precise positioning.
+Therefore, more relaxed constraints and more complex models are used as a basis
+for satellite navigation, which we'll describe next. Nevertheless, the
+fundamental concept remains unchanged even with a more elaborated model of the
+world.
+
+\section{Determining satellite-to-user range}
+Improving on the model just described, the first assumption we'll refine is that
+of the clock of the receiver being perfectly synchronzied with that of the
+transmitter.

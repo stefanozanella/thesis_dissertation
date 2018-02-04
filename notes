@@ -1,10 +1,12 @@
 Todo:
   Add reference to https://www.gsc-europa.eu/system-status/Constellation-Information
+  Replace XXXXX with actual references
   Divide introduction in paragraphs
   Ask Gianluca to verify claims in introduction
   Write thesis roadmap in introduction
   Trim down abstract
   Add table with GPS block evolution
+  Add figure that explains ranging with TOA estimation in ch 2.1
 
 Abstract:
   motivation, problem statement, approach, results, and conclusions
