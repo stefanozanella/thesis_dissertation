@@ -74,4 +74,225 @@ world.
 \section{Determining satellite-to-user range}
 Improving on the model just described, the first assumption we'll refine is that
 of the clock of the receiver being perfectly synchronzied with that of the
-transmitter.
+transmitter. In the model for PVT calculation there are many factors that can
+influence the final result, but hardly any of those can have an impact as big as
+that of an imprecise time calculation.
+
+\par
+
+Before talking about how unsynchronized clocks affect the position resolution,
+let's define the general model used by GNSS.
+
+As saw already, the model for PVT calculation includes two clocks: that of the
+transmitter and that of the receiver. With differences in precision and amount
+of drift, both clocks are assumed to accumulate (positive or negative) drift
+with respect to system time, thus being offset from the reference time.
+We'll call the offset of the transmitter's clock $\delta_t$ and the offset at
+the receiver's $\delta_r$.
+
+Recalling that the geometric distance $r$ between transmitter and receiver is
+\begin{equation}
+  r = c(T_r - T_t)
+\end{equation}
+where
+\begin{itemize}
+  \item $c$ is the speed of light at which the signal travels
+  \item $T_r$ is the system time of signal reception
+  \item $T_t$ is the system time of signal transmission
+\end{itemize}
+we can then improve the equation by including the time offsets just described,
+which gives us the equation for the \textit{pseudorange} $\rho$:
+\begin{equation}
+  \begin{aligned}
+    \rho &= c[(T_r + \delta_r) - (T_t + \delta_t)] \\
+    & = c[(T_r + \delta_r) - (T_t + \delta_t)] \\
+    & = c(T_r - T_t) + c(\delta_r - \delta_t) \\
+    & = r + c(\delta_r - \delta_t)
+  \end{aligned}
+\end{equation}
+
+Of these two offset, that of the satellite is monitored and controlled by each
+GNSS ground mission, and its correction transmitted as part of the navigation
+message. Therefore, despite some residual offset its contribution to the
+equation can be ignored, thus simplifying the model for the pseudorange to
+\begin{equation} \label{eq:pseudorange}
+  \rho = r + c(\delta_r)
+\end{equation}
+
+This transforms the original problem from having three variables to having four.
+
+\section{Determining user's position}
+Solution of equation \ref{eq:pseudorange} yields the magnitude of a vector that
+represents the distance between transmitter and receiver. In reality, what we're
+interested in is identifying the coordinates of the receiver within a reference
+frame. To model this we can expand transforming $r$ in cartesian form. Given a
+receiver at position $(x_r, y_r, z_r)$ and a transmitter at position $(x_t, y_t,
+z_t)$, the pseudorange can be expressed as:
+\begin{equation} \label{eq:expandedpseudorange}
+  \begin{aligned}
+    \rho &= \sqrt{(x_t - x_r)^2 + (y_t - y_r)^2 + (z_t - z_r)^2} + c\delta_r \\
+    & = f(x_r, y_r, z_r, \delta_r)
+  \end{aligned}
+\end{equation}
+
+Given the problem contains four variables, we need a set of four equations to
+obtained a closed solution. This is equivalent of obtaining ranges from four
+different satellites, which can be expressed with the set of equations
+
+\begin{equation} \label{eq:userpositionfull}
+  \begin{array}{l}
+  \rho_1 = \sqrt{(x_{t1} - x_r)^2 + (y_{t1} - y_r)^2 + (z_{t1} - z_r)^2} + c\delta_r \\
+  \rho_2 = \sqrt{(x_{t2} - x_r)^2 + (y_{t2} - y_r)^2 + (z_{t2} - z_r)^2} + c\delta_r \\
+  \rho_3 = \sqrt{(x_{t3} - x_r)^2 + (y_{t3} - y_r)^2 + (z_{t3} - z_r)^2} + c\delta_r \\
+  \rho_4 = \sqrt{(x_{t4} - x_r)^2 + (y_{t4} - y_r)^2 + (z_{t4} - z_r)^2} + c\delta_r
+  \end{array}
+\end{equation}
+
+This set of nonlinear equation can be solved with different techniques:
+closed-form solutions, iterative methods based on linearization, or Kalman
+filters. What follows is an example of linearization.
+
+\par
+
+To transform non-linear terms in the equation, we will make the assumption that
+an approximate position $(\hat x_r, \hat y_r, \hat z_r)$ and clock error
+estimate $\hat \delta_r$ are available. Under this assumption we can then say
+that the true receiver position and time are composed of an approximate
+component and an incremental one:
+\begin{equation} \label{eq:incrementals}
+  \begin{array}{l}
+    x_r = \hat x_r + \Delta x_r \\
+    y_r = \hat y_r + \Delta y_r \\
+    z_r = \hat z_r + \Delta z_r \\
+    \delta_r = \hat \delta_r + \Delta \delta_r
+  \end{array}
+\end{equation}
+
+This allows us to express \ref{eq:expandedpseudorange} as
+\begin{equation}
+    f(x_r, y_r, z_r, \delta_r) = f(\hat x_r + \Delta x_r, \hat y_r + \Delta y_r,
+      \hat z_r + \Delta z_r, \hat \delta_r + \Delta \delta_r)
+\end{equation}
+
+This can in turn be expaneded using a Taylor series as
+\begin{equation} \label{eq:taylorseries}
+  \begin{aligned}
+  f(\hat x_r + \Delta x_r, \hat y_r + \Delta y_r,
+      \hat z_r + \Delta z_r, \hat \delta_r + \Delta \delta_r) &= f(\hat x_r, \hat y_r,
+      \hat z_r, \hat \delta_r) + \\
+      \frac{\partial f(\hat x_r, \hat y_r, \hat z_r, \hat \delta_r)}{\partial \hat x_r} \Delta x_r + \\
+      \frac{\partial f(\hat x_r, \hat y_r, \hat z_r, \hat \delta_r)}{\partial \hat y_r} \Delta y_r + \\
+      \frac{\partial f(\hat x_r, \hat y_r, \hat z_r, \hat \delta_r)}{\partial \hat z_r} \Delta z_r + \\
+      \frac{\partial f(\hat x_r, \hat y_r, \hat z_r, \hat \delta_r)}{\partial \hat \delta_r} \Delta \delta_r + \\
+      ...
+  \end{aligned}
+\end{equation}
+
+The expression has been truncated to eliminate higher order non-linear
+components. Focusing on the partial derivatives we obtain
+\begin{equation} \label{eq:partialsexpansion}
+  \begin{array}{l}
+    \frac{\partial f(\hat x_r, \hat y_r, \hat z_r, \hat \delta_r)}{\partial \hat x_r} = - \frac{x_t - \hat x_r}{\hat r_t} \\
+    \frac{\partial f(\hat x_r, \hat y_r, \hat z_r, \hat \delta_r)}{\partial \hat y_r} = - \frac{y_t - \hat y_r}{\hat r_t} \\
+    \frac{\partial f(\hat x_r, \hat y_r, \hat z_r, \hat \delta_r)}{\partial \hat z_r} = - \frac{z_t - \hat z_r}{\hat r_t} \\
+    \frac{\partial f(\hat x_r, \hat y_r, \hat z_r, \hat \delta_r)}{\partial \hat \delta_r} = c
+  \end{array}
+\end{equation}
+
+where
+\begin{equation}
+  \hat r_t = \sqrt{(x_t - \hat x_r)^2 + (y_t - \hat y_r)^2 + (z_t - \hat z_r)^2}
+\end{equation}
+
+At this point we can substitute \ref{eq:expandedpseudorange} and
+\ref{eq:partialsexpansion} into \ref{eq:taylorseries}, which yields (for a
+generic range between transmitter $j$ and receiver $r$):
+\begin{equation}
+  \rho_j = \hat \rho_j - \frac{x_j - \hat x_r}{\hat r_j}\Delta x_r - \frac{y_j -
+    \hat y_r}{\hat r_j}\Delta y_r - \frac{z_j - \hat z_r}{\hat r_j}\Delta z_r +
+    c\delta_r
+\end{equation}
+
+This completes the linearization of \ref{eq:expandedpseudorange} with respect to
+the unknown $\Delta x_r, \Delta y_r, \Delta z_r, \Delta \delta_r$. For clarity
+we can rearrange unknowns on the right and knowns on the left
+\begin{equation}
+  \hat \rho_j - \rho_j = \frac{x_j - \hat x_r}{\hat r_j}\Delta x_r + \frac{y_j -
+    \hat y_r}{\hat r_j}\Delta y_r + \frac{z_j - \hat z_r}{\hat r_j}\Delta z_r -
+    c\delta_r
+\end{equation}
+and then introduce new variables
+\begin{equation}
+  \begin{array}{l}
+    \Delta \rho = \hat \rho_j - \rho_j \\
+    a_{xj} = \frac{x_j - \hat x_r}{\hat r_j} \\
+    a_{yj} = \frac{y_j - \hat x_r}{\hat r_j} \\
+    a_{zj} = \frac{z_j - \hat z_r}{\hat r_j}
+  \end{array}
+\end{equation}
+which allows us to rewrite the equation as
+\begin{equation}
+  \Delta \rho_j = a_{xj} \Delta x_r + a_{yj} \Delta y_r + a_{zj} \Delta z_r - c \delta_r
+\end{equation}
+
+Now the original formulation of the problem stated in \ref{eq:userpositionfull}
+can be rewritten in linear form as
+\begin{equation}
+  \begin{array}{l}
+    \Delta \rho_1 = a_{x1} \Delta x_r + a_{y1} \Delta y_r + a_{z1} \Delta z_r - c \delta_r \\
+    \Delta \rho_2 = a_{x2} \Delta x_r + a_{y2} \Delta y_r + a_{z2} \Delta z_r - c \delta_r \\
+    \Delta \rho_3 = a_{x3} \Delta x_r + a_{y3} \Delta y_r + a_{z3} \Delta z_r - c \delta_r \\
+    \Delta \rho_4 = a_{x4} \Delta x_r + a_{y4} \Delta y_r + a_{z4} \Delta z_r - c \delta_r
+  \end{array}
+\end{equation}
+
+These equations can then be put in matrix form; by defining
+\[
+  \begin{array}{l}
+  \Delta \bm{\rho} = \begin{bmatrix}
+    \Delta \rho_1 \\
+    \Delta \rho_2 \\
+    \Delta \rho_3 \\
+    \Delta \rho_4
+  \end{bmatrix}
+
+  \>
+
+  \bm{H} = \begin{bmatrix}
+    a_{x1} & a_{y1} & a_{z1} & 1 \\
+    a_{x2} & a_{y2} & a_{z2} & 1 \\
+    a_{x3} & a_{y3} & a_{z3} & 1 \\
+    a_{x4} & a_{y4} & a_{z4} & 1 \\
+  \end{bmatrix}
+
+  \>
+
+  \Delta \bm{x} = \begin{bmatrix}
+    \Delta x_r \\
+    \Delta y_r \\
+    \Delta z_r \\
+    -c \Delta \delta_r
+  \end{bmatrix}
+  \end{array}
+\]
+we can then write
+\begin{equation}
+  \Delta \bm{\rho} = \bm{H} \Delta \bm{x}
+\end{equation}
+which has solution
+\begin{equation}
+  \Delta \bm{x} = \bm{H}^{-1} \Delta \bm{\rho}
+\end{equation}
+
+Once the unknown are computed, the actual user position can be computed using
+\ref{eq:incrementals}. This process works well as long as the displacement from
+the approximate position is small enough. However, subsequent iterations of the
+method will improve the accuracy of the result.
+
+In reality though, the true user-to-satellite range measurements are affected by
+independent errors such as measurement noise and multipath. Such errors
+constitute a component that affects the calculated user position. To minimize
+these errors, one technique is to perform measurements to more than four
+satellites, using least square estimation methods to minimize the effect of the
+independent source of errors. This is a feature that most of today's user
+receivers employ.
