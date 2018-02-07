@@ -296,3 +296,174 @@ these errors, one technique is to perform measurements to more than four
 satellites, using least square estimation methods to minimize the effect of the
 independent source of errors. This is a feature that most of today's user
 receivers employ.
+
+\section{Determining user's velocity}
+Another component of the PVT solution is velocity. Satellite navigation provides
+the capability of measuring a receiver's three-dimensional velocity, here
+denoted as $\bm{\dot u}$. This is generally determined using one of two
+techniques: either as an approximate derivative of the receiver position, taking
+the difference of two subsequent measurements and dividing it by the time
+elapsed between the two. This technique can provide satisfactory results if the
+receiver's velocity is nearly constant and if the errors in determining the two
+positions are small enough. For this reason most modern receivers use a
+technique based on measurement of the carrier frequency and a precise estimation
+of the received Doppler frequency.
+
+\par
+
+Generally speaking, the received frequency at the receiver's antenna can be
+approximated by the classical Doppler equation:
+\begin{equation} \label{eq:doppler}
+  f_R = f_T \left(1-\frac{\bm{v_r} \cdot \bm{a}}{c}\right)
+\end{equation}
+where $f_T$ is the transmitted frequency at the satellite's end, $f_R$ is the
+received frequency at the receiver's antenna, $c$ is the speed of light,
+$\bm{a}$ is the unit vector directed along the line of sight between satellite
+and receiver, and $\bm{v_r}$ is the satellite-to-receiver relative velocity
+vector. Given $\bm{v}$ as the satellite's velocity, we can express $\bm{v_r}$ as
+\begin{equation} \label{eq:user_velocity}
+  \bm{v_r} = \bm{v} - \bm{\dot u}
+\end{equation}
+This relative motion results in a Doppler offset that can be expressed by
+\begin{equation}
+  \Delta f = f_R - f_T = -f_T \frac{(\bm{v} - \bm{\dot u}) \cdot \bm{a}}{c}
+\end{equation}
+
+At this point several techniques can be used to determine $\bm{\dot u}$ from the
+received Doppler frequency. The one described here assumes that the user
+position has already been determined and computes, together with the receiver's
+velocity $\bm{\dot u} = (\dot x_u, \dot y_u, \dot z_u)$, also the clock drift
+$\dot t_u$.
+
+We start by substituting \ref{eq:user_velocity} into \ref{eq:doppler}, which
+yields
+\begin{equation} \label{eq:doppler2}
+  f_{Rj} = f_{Tj}\left\{ 1-\frac{1}{c}\left[ \left( \bm{v}_j - \bm{\dot u} \right) \cdot \bm{a}_j \right] \right\} 
+\end{equation} 
+
+At this point the receiver needs to estimate the received signal frequency. This
+measurement is also subject to error due to the bias induced by drifting of the
+local clock, expressed by $\dot t_u$. Hence, being $f_j$ the estimate of the
+received frequency, we can put clock drift, actual and estimated received
+frequency in the following relation
+\begin{equation} \label{eq:received_freq}
+  f_{Rj} = f_j (1 + \dot t_u)
+\end{equation}
+
+Substituting \ref{eq:received_freq} into \ref{eq:doppler2} and performing some
+basic algebraic manipulation we obtain
+\begin{equation}
+  \frac{c(f_j - f_{Tj})}{f_{Tj}}+\bm{v}_j \cdot \bm{a}_j = \bm{\dot u} \cdot \bm{a}_j - \frac{c f_j \dot t_u}{f_{Tj}}
+\end{equation}
+if then we expand the dot products using the three-dimensional components of the
+vectors we reach
+\begin{equation}
+  \frac{c(f_j - f_{Tj})}{f_{Tj}} + v_{xj}a_{xj} + v_{yj}a_{yj} + v_{zj}a_{zj} =
+  \dot{x_u} a_{xj} + \dot{y_u} a_{yj} + \dot{z_u} a_{zj} - \frac{c f_j \dot t_u}{f_{Tj}}
+\end{equation}
+
+In this expression all variables on the left side are either calculated or
+derived from measured values. To make the equation more compact we can then
+introduce a new variable
+\begin{equation}
+  d_j = \frac{c(f_j - f_{Tj})}{f_{Tj}} + v_{xj}a_{xj} + v_{yj}a_{yj} + v_{zj}a_{zj}
+\end{equation}
+
+Additionally, the term $f_j/f_{tj}$ is tipically very close to 1 and the
+resulting error is negligible. With this further simplification we obtain
+\begin{equation}
+  d_j = \dot{x_u} a_{xj} + \dot{y_u} a_{yj} + \dot{z_u} a_{zj} - c \dot t_u
+\end{equation}
+
+Now the equation contains four unknowns which can be solved by performing four
+distinct measurements against four different satellites, yielding a system of
+equations that can represented and solved with the following matrices:
+\[
+  \begin{array}{l}
+    \bm{d} = \begin{bmatrix}
+    d_1 \\ d_2 \\ d_3 \\ d_4
+  \end{bmatrix}
+
+  \>
+
+  \bm{H} = \begin{bmatrix}
+    a_{x1} & a_{y1} & a_{z1} & 1 \\
+    a_{x2} & a_{y2} & a_{z2} & 1 \\
+    a_{x3} & a_{y3} & a_{z3} & 1 \\
+    a_{x4} & a_{y4} & a_{z4} & 1 \\
+  \end{bmatrix}
+
+  \>
+
+  \bm{g} = \begin{bmatrix}
+    \dot x_u \\
+    \dot y_u \\
+    \dot z_u \\
+    -c \dot t_u
+  \end{bmatrix}
+  \end{array}
+\]
+which then corresponds to
+\begin{equation}
+  \bm{d} = \bm{H} \bm{g}
+\end{equation}
+so the solution for the user's velocity and time drift is
+\begin{equation}
+  \bm{g} = \bm{H}^{-1} \bm{d}
+\end{equation}
+
+As in the previous case, this solution is affected by errors propagating across
+the calculation. Also similar to the previous case, it's possible to perform
+measurements against more than four satellites and use least square estimates to
+increase the accuracy.
+
+\section{Terrestrial reference frame}
+So far in the discussion of how to resolve user's PVT equation we took for
+granted that a coordinate reference frame was provided. We'll now look into how
+this coordinate reference frame is modeled and how receivers can map between
+this reference frame and a pair of longitude and latitude estimates.
+
+\par
+
+In general, two kind of models can be used: inertial and rotating. When
+describing the orbit of satellites, it's more useful to use an intertial system;
+in particular, an Earth Centered Inertial (ECI) system has origin at the center
+of mass of the Earth and axes that point in fixed directions with respect to the
+stars.
+
+When dealing with measuring and describing user position, instead, it's more
+useful to use a reference system that's fixed with respect to the Earth (i.e. a
+reference system that rotates with it). Such a system is called Earth Centered
+Earth Fixed (ECEF). In such a system the xy-plane is coincident with Earth's
+equatorial plane: the x axis pointing to 0° longitude and the y axis pointing to
+90°E longitude. The z axis is chosen to be normal to the equatorial plane in the
+direction of the geographical North Pole, thus forming a right-handed coordinate
+system.
+
+These frames are useful for describing and solving the PVT problem, but are less
+so when a fix needs to be presented to the user. This normally is better
+described by a pair of longitude and latitude measurements. Therefore in order
+to make this transformation, a physical model of the Earth is needed. Such model
+is not unique and varies between satellite systems; Galileo uses what's known as
+GTRF (Galileo Terrestrial Reference Frame).
+
+The GTRF is an independent realization of an international standard called ITRS
+(International Terrestrial Reference System) which defines a framework to
+describe geodetic reference frames. This framework is used to produce periodic
+updates to the ITRF; by Galileo system requirement the
+three-dimensional difference between a position in GTRF and the most recent ITRF
+should not exceed 3cm.
+
+The purpose of such a reference frame is to define the Earth's surface by a
+closed equation representing an ellipsoid with a certain number of degrees of
+freedom. These degrees of freedom are then represented by parameters that can be
+sent along the navigation message and subsequently used to resolve user's
+position in terms of longitude, latitude and height with respect to this
+reference frame; defined in this manner, these parameters are called
+\textit{geodetic}.
+
+Given a user's position vector $\bm{u} = (x_u, y_u, z_u)$ in ECEF coordinates,
+we can compute the user's geodetic longitude $\lambda$ as the angle between the
+user and the x axis measured in the xy-plane:
+
+\section{Additional sources of errors}
