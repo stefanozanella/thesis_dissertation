@@ -81,6 +81,7 @@
 \RequirePackage{amsmath}
 \RequirePackage{bm}
 \RequirePackage{mathspec}
+\RequirePackage{gensymb}
 %\setmathsfont(Digits,Latin,Greek)[Numbers={Proportional}]{EB Garamond}
 %\setmathrm{EB Garamond}
 \AtBeginEnvironment{tabular}{\addfontfeature{RawFeature=+tnum}}

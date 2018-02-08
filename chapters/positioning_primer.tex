@@ -1,18 +1,5 @@
 %!TEX root = ../dissertation.tex
 
-% outline
-% - theoretical framework (6)
-%   - functioning principle and requirements: TOA, triangulation, PVT, precise
-%   timing (1)
-%   - obtaining user to satellite range (2)
-%   - obtaining user position (2)
-%   - obtaining user velocity (1)
-% - practical aspects (4)
-%   - measuring time
-%   - determining satellite position
-%   - earth reference frame
-% - how a receiver works (?)
-
 \chapter{Satellite navigation fundamentals}
 
 No matter the GNSS under analysis, the fundamental principles that make radio
@@ -450,9 +437,9 @@ GTRF (Galileo Terrestrial Reference Frame).
 The GTRF is an independent realization of an international standard called ITRS
 (International Terrestrial Reference System) which defines a framework to
 describe geodetic reference frames. This framework is used to produce periodic
-updates to the ITRF; by Galileo system requirement the
-three-dimensional difference between a position in GTRF and the most recent ITRF
-should not exceed 3cm.
+updates to the ITRF; by Galileo system requirement the three-dimensional
+difference between a position in GTRF and the most recent ITRF should not exceed
+3cm.
 
 The purpose of such a reference frame is to define the Earth's surface by a
 closed equation representing an ellipsoid with a certain number of degrees of
@@ -465,5 +452,94 @@ reference frame; defined in this manner, these parameters are called
 Given a user's position vector $\bm{u} = (x_u, y_u, z_u)$ in ECEF coordinates,
 we can compute the user's geodetic longitude $\lambda$ as the angle between the
 user and the x axis measured in the xy-plane:
+\begin{equation}
+  \lambda = \begin{cases}
+    \arctan \left(\frac{y_u}{x_u}\right),& \text{if } x_u \geq 0 \\
+    180°+\arctan \left(\frac{y_u}{x_u}\right),& \text{if } x_u < 0 \text{ and } y_u \geq 0\\
+    -180°+\arctan \left(\frac{y_u}{x_u}\right),& \text{if } x_u < 0 \text{ and } y_u < 0\\
+  \end{cases}
+\end{equation}
+
+Geodetic latitude $\phi$ and height $h$ are defined in terms of the normal to
+the ellipsoid from the user's position $\bm{n}$. Geodetic height is defined as
+the minimum distance of the user to the surface of the reference ellipsoid.
+Geodetic latitude is the angle between the normal $\bm{n}$ and its projection
+into the equatorial plane. Conventionally $\phi$ is set to be $> 0$ if the user
+is in the northern empisphere ($z_u > 0$) and $< 0$ if the user is in the
+southern emisphere ($z_u < 0$).
+
+To calculate $\phi$ and $h$ several methods exist, both closed-form and
+iterative; one example of the latter is a highly convergent method by Bowring
+which uses four parameters in the description of the ellipsoid:
+\begin{itemize}
+\item $a$ semimajor axis, i.e. radius of the cross-section taken at the
+  equatorial plane
+\item $b$ semiminor axis, i.e. radius of the polar section of the Earth
+\item $e$ eccentricity, defined as 
+  \[
+    e = \sqrt{1 - \frac{b^2}{a^2}}
+  \]
+\item $e'$ second eccentricity, defined as
+  \[
+    e' = \sqrt{\frac{a^2}{b^2} - 1} = \frac{a}{b}e
+  \]
+\end{itemize}
+The resolution method, given these parameters, is as follows:
+\[
+  \begin{array}{l}
+    p = \sqrt{x^2 + y^2} \\
+    \tan u = \big(\frac{z}{p}\big)\big(\frac{a}{b}\big) \\
+    \text{iteration loop} \\
+    \cos^2 u = \frac{1}{1+\tan^2 u} \\
+    \sin^2 u = 1 - \cos^2 u \\
+    \tan \phi = \frac{z + e'^2 b \sin^3 u}{p - e^2 a \cos^3 u} \\
+    \tan u = \frac{b}{a}\tan \phi \\
+    \text{until $\tan u$ converges, then} \\
+    N = \frac{a}{\sqrt{1 - e^2 \sin^2 \phi}} \\
+    \text{if $\phi \neq \pm 90 \degree $} \\
+    h = \frac{p}{\cos \phi} - N \\
+    \text{otherwise if $\phi \neq 0$} \\
+    h = \frac{z}{\sin \phi} - N + e^2N
+  \end{array}
+\]
 
 \section{Additional sources of errors}
+So far we considered as a potential source of error just the clock drift at the
+receiver's end, provided the drift at the satellites' end is corrected by the
+ground segment and the correction parameters transmitted with the navigation
+message. The reason for this is that this source of error has an impact that
+makes any other error less than significant; nevertheless, once clock drift has
+been accounted for, other sources of error can become relevant and affect the
+accuracy of the final fix.
+
+These error sources include:
+\begin{itemize}
+  \item Ephemeris errors: these happen as the ephemerides transmitted by ground
+    mission are a prediction of the actual trajectory. In the case of Galileo,
+    differences between the actual orbit path and the broadcasted one can
+    introduce errors in pseudorange measurements in the order of 1.6m $\pm$
+    0.3m.
+  \item Atmospheric errors: these are of different kind. The more general one is
+    due to the dispersion effect that happens in mediums with an index of
+    refraction that is a function of the wave frequency (as is in the case of
+    Earth's atmosphere). This results in different propagation speeds between
+    signal phase and information. Another kind of error is due to the crossing
+    of the signal of Earth's ionosphere; the effect is similar to the general
+    atmospheric propagation delay, but its magnitude is strong enough that
+    correction parameters are provided as part of the navigation message.
+    Since this error is frequency-dependent, another way to compensate for this
+    effect is to use a dual-frequency receiver, making measurements on two
+    separate frequency bands.
+  \item Relativistic effects: the satellites' clocks are affected by both
+    general relativity and special relativity laws. Galileo OS SIS ICD doesn't
+    make a specific statement with reference to relativistic effects, but
+    provides nevertheless four clock correction parameters to compensate for
+    various aspects that might influence the frequency of the onboard clocks.
+\end{itemize}
+
+\section{Signal acquisition and tracking through PRN codes}
+% TODO
+% - Doppler effect?
+% - difference between acquisition and tracking
+% - acquisition through autocorrelation functions
+% - tracking through PLL
