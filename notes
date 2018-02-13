@@ -45,6 +45,7 @@ http://opsjournal.org/DocumentLibrary/Uploads/Mudrak_article_final.pdf ->
 relativistic errors in Galileo
 http://www.aerotecnica.eu/index.php/AMS/article/view/131 -> relativistic effects
 in Galileo
+https://arxiv.org/pdf/1503.02656.pdf -> energy consumption of GPS mobile receivers
 
 
 
@@ -63,9 +64,4 @@ TOC
   - threat models
     - jamming
     - spoofing
-- proposed solutions
-- overview of the more gossip software simulator
-- implementing tesla in the simulator
-- performance analysis
-- potential issues
 - future work

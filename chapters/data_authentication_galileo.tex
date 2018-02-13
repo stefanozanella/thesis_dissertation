@@ -1,0 +1,43 @@
+%!TEX root = ../dissertation.tex
+
+\chapter{Data authentication in Galileo}
+
+So far we've described the classic radio satellite navigation problem and
+solution. This generally accepted model works well but provides no security
+guarantees. In particular, it doesn't prevent malicious users to forge ad-hoc
+signals and impersonate a satellite, or even a whole GNSS.
+
+In this chapter we'll describe the general data authentication problem for open
+signals in GNSS environments, the threat model and the possible attacks. We will
+then move on to describe TESLA, a data authentication protocol suited for
+streaming, lossy channels that the Galileo program chose to implement in order
+to secure the navigation message. We'll also describe the proposed
+implementation of TESLA in the current Galileo subframe structure.
+
+% TOC
+% - threat model
+% - possible attacks
+% - TESLA
+% - ICD proposal to integrate TESLA in the current Galileo navigation message
+
+% TESLA wants
+% - local clocks of the sender and receiver don't drift too much during a
+%   session -> client needs to know a loose upper bound on the maximum
+%   synchronization error
+% - in scheme IV at session setup the sender should send and authenticate the
+%   starting time of the first interval, the duration of an interval and the
+%   maximum delay d. The specs don't do this in full
+% - in scheme IV it's required that the sender sends along the interval index i,
+%   the specs don't do this?
+% - the specs don't specify any value for the propagation delay. It would be
+%   interesting to provide a recommended value
+% - suggest that receivers initially synchronize time over the network before
+%   starting to perform authentication with TESLA due to the protocol's
+%   requirements? -> that would still be somehow insufficient, as it requires
+%   the network time sync protocol is also authenticated
+%     Or maybe the receiver can estimate an upper bound to the synchronization
+%   error during the acquisition phase?
+% - a possible DOS attack is to forge a packet marked as being from an interval
+%   far in the future. A possible fix is to ignore packets if they could have
+%   not been sent yet -> does a Galileo receiver have any means to do this? Any
+%   condition on the fields that guarantees that this cannot happen?
