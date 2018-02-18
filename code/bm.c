@@ -13,12 +13,13 @@ double get_time()
 int main() {
   double avg = 0.0;
 
+  unsigned char hash[SHA256_DIGEST_LENGTH];
+  SHA256_CTX sha256;
+
   for (int j = 0; j < 10; j++) {
     double start = get_time();
 
     for (int k = 0; k < 10248576; k++) {
-      unsigned char hash[SHA256_DIGEST_LENGTH];
-      SHA256_CTX sha256;
       SHA256_Init(&sha256);
       SHA256_Update(&sha256, "1234567890", 10);
       SHA256_Final(hash, &sha256);

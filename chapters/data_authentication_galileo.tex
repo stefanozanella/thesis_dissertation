@@ -120,8 +120,8 @@ $2^{29}$ & 855.27 & 582.81 & 586.11\tabularnewline
 $2^{30}$ & 1442.6 & 1192.6 & 1247.0\tabularnewline
 \bottomrule
 \caption{Key chain computation time vs key chain length}
-
 \end{longtable}
+
 Another general observation is that the computation time improves slightly for
 the SHA3 family of hash functions, but in general the variability in computation
 time is dominated by the chain length.
@@ -137,6 +137,64 @@ CPU clocks at much lower rates than their maximum (see for example
 \cite{mediatek_specs}). According to the knowledge base of ARM, the maximum
 performance of the ARM9 family reaches $1.1$ DMIPS per MHz, which means we can
 assume the reference CPU can achieve roughly $230$ DMIPS when at full speed.
+
+For us to translate these observations to an estimate of the running time of the
+chain computation on an embedded device, we've correlated the running time of
+the Python code to that of its C counterpart. Surprisingly, the same benchmark
+for a key chain of length $2^{20}$ over the SHA-256 function seems to be more
+performant in Python than in C, as exposed in ~\ref{table:bm_c_python}. As a
+reference, the Python snippet is provided in ~\ref{code:python_bm} and its C
+counterpart in ~\ref{code:c_bm}. This comparison tells us that in order to get
+an estimate of how long it would take to compute the whole key chain on an
+embedded CPU of a Galileo receiver we can simply relate the running times $t_j$
+just measured, the processing power of the CPU where the benchmark was run
+$P_{BM}$ and the projected processing power of the CPU of the receiver $P_R$. A
+simple proportion shows that
+
+\begin{equation}
+  t_j : P_{BM} = t_rj : P_R
+\end{equation}
+
+where $t_rj$ is the estimate of the running time on the receiver processor. This
+equation solved for this last variable yields:
+
+\[
+  t_rj = t_j \frac{P_{BM}}{P_R}
+\]
+
+Substituting the variables with the numbers devised above we can obtain an
+approximate conversion as follows:
+
+\begin{equation}
+  \begin{align}
+  t_rj &= t_j \frac{50 \cdot 10^3}{230} \
+        = 246.30 t_j
+  \end{align}
+\end{equation}
+
+Using this conversion rate to ~\ref{table:bm1} we obtain ~\ref{table:bm1_recv}.
+
+\begin{longtable}[]{@{}lll@{}}
+\label{table:bm1_recv}
+\toprule
+Chain size & SHA-256 & SHA3-224 & SHA3-256\tabularnewline
+\midrule
+\endhead
+$2^{20}$ & 355.88 & 282.14 & 278.22\tabularnewline
+$2^{21}$ & 691.54 & 558.24 & 560.78\tabularnewline
+$2^{22}$ & 1376.1 & 1116.2 & 1159.3\tabularnewline
+$2^{23}$ & 2755.9 & 2226.1 & 2239.3\tabularnewline
+$2^{24}$ & 5519.1 & 4473.1 & 4475.3\tabularnewline
+$2^{25}$ & 1.1048e4 & 8956.0 & 9929.8\tabularnewline
+$2^{26}$ & 2.2127e4 & 1.7793e4 & 2.4075e4\tabularnewline
+$2^{27}$ & 4.4199e4 & 3.6502e4 & 3.8056e4\tabularnewline
+$2^{28}$ & 8.8459e4 & 7.1796e4 & 7.9306e4\tabularnewline
+$2^{29}$ & 2.1065e5 & 1.4355e5 & 1.4436e5\tabularnewline
+$2^{30}$ & 3.5531e5 & 2.9374e5 & 3.0714e5\tabularnewline
+\bottomrule
+\caption{Approximate key chain computation time vs key chain length for an
+average GNSS receiver}
+\end{longtable}
 
 % Discussion points
 % 1 the specs recommend for a chain to last 2^25/ - 2^26 keys. This means that a
