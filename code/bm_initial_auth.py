@@ -10,7 +10,7 @@ for exp in chain_lengths:
     for _ in range(0, iterations):
         start = time.time()
         for _ in range(0, chain_length):
-            hashlib.sha3_256(b"1234567890").hexdigest()
+            hashlib.sha3_224(b"1234567890").hexdigest()
         end = time.time()
         total += end - start
     print(exp, total/iterations)
