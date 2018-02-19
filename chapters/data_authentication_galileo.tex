@@ -65,8 +65,8 @@ $L$ times the hash function to $K_L$.
 \par
 
 Following this result, we've tried to perform a benchmark to understand time and
-resource consumption in the best and worst case, to aid hardware design and
-implementation for receivers that should support OSNMA.
+resource consumption to aid hardware design and implementation for receivers
+that should support OSNMA.
 
 The algorithm described so far contains three degrees of freedom that have been
 analyzed separately: chain length, key length and selected hash function. As
@@ -87,22 +87,21 @@ the time it takes to perform $2^{20}$ computations of a SHA256 chain.
 The first test measures how much time it takes to compute the whole chain of
 keys, for different lengths of the chain. Tested lengths vary between $2^{20}$
 and $2^{30}$ keys, so that the suggested values of $2^{25}$ and $2^{26}$ lie in
-the middle of the range. The computation is done against a fixed key of 80 bits
-of length, and the same test has been performed for all the hash functions
+the middle of the range. The computation is done against a fixed key of $80$
+bits of length, and the same test has been performed for all the hash functions
 supported by the protocol.
 
 % TODO Graph here
 
-The results of this first benchmark can be seen in ~\ref{fig:bm1}. The values
-that make up the graph can be seen in ~\ref{table:bm1}. It's important to
+The results of this first benchmark can be seen in figure~\ref{fig:bm1}. The values
+that make up the graph can be seen in table~\ref{table:bm1}. It's important to
 observe that the x-axis is in logarithmic scale since the value represents the
 exponent to the power of $2$ used to calculate the chain length.  We can observe
 that the relationship is basically linear (i.e. transforming the x-axis to a
 linear scale would make the graph look like a line); that is, doubling the size
 of the chain directly doubles the time it takes to compute the chain.
 
-\begin{longtable}[]{@{}lll@{}}
-\label{table:bm1}
+\begin{longtable}[]{@{}llll@{}}
 \toprule
 Chain size & SHA-256 & SHA3-224 & SHA3-256\tabularnewline
 \midrule
@@ -119,7 +118,8 @@ $2^{28}$ & 359.15 & 291.50 & 321.99\tabularnewline
 $2^{29}$ & 855.27 & 582.81 & 586.11\tabularnewline
 $2^{30}$ & 1442.6 & 1192.6 & 1247.0\tabularnewline
 \bottomrule
-\caption{Key chain computation time vs key chain length}
+\caption{Key chain computation time [s] vs key chain length}
+\label{table:bm1}
 \end{longtable}
 
 Another general observation is that the computation time improves slightly for
@@ -130,10 +130,10 @@ One important aspect to focus our attention on is the relative significance of
 this benchmark with respect to the average computation power of an average
 receiver. The numbers just described have been obtained by running the code on a
 MacBook Pro sporting a 2.6GHz Intel Core i5 processor. A benchmark sheet such as
-\cite{bm_intel_core_i5} can show that such a processor can handle roughly $50k$
-DMIPS. As a reference, the STA8088EXG GNSS receiver \cite{st_rec_specs} sports
-an ARM9 processor clocking at a maximum of 208MHz. Usually in such receivers the
-CPU clocks at much lower rates than their maximum (see for example
+\cite{bm_intel_core_i5} can show that such a processor can handle roughly $50
+000$ DMIPS. As a reference, the STA8088EXG GNSS receiver \cite{st_rec_specs}
+sports an ARM9 processor clocking at a maximum of 208MHz. Usually in such
+receivers the CPU clocks at much lower rates than their maximum (see for example
 \cite{mediatek_specs}). According to the knowledge base of ARM, the maximum
 performance of the ARM9 family reaches $1.1$ DMIPS per MHz, which means we can
 assume the reference CPU can achieve roughly $230$ DMIPS when at full speed.
@@ -142,14 +142,40 @@ For us to translate these observations to an estimate of the running time of the
 chain computation on an embedded device, we've correlated the running time of
 the Python code to that of its C counterpart. Surprisingly, the same benchmark
 for a key chain of length $2^{20}$ over the SHA-256 function seems to be more
-performant in Python than in C, as exposed in ~\ref{table:bm_c_python}. As a
-reference, the Python snippet is provided in ~\ref{code:python_bm} and its C
-counterpart in ~\ref{code:c_bm}. This comparison tells us that in order to get
-an estimate of how long it would take to compute the whole key chain on an
-embedded CPU of a Galileo receiver we can simply relate the running times $t_j$
-just measured, the processing power of the CPU where the benchmark was run
-$P_{BM}$ and the projected processing power of the CPU of the receiver $P_R$. A
-simple proportion shows that
+performant in Python than in C, as exposed in table~\ref{table:bm_c_python}. As a
+reference, the Python snippet is provided in listing~\ref{lst:python_bm} and its C
+counterpart in listing~\ref{lst:c_bm}. 
+
+\lstinputlisting[
+  language=python, 
+  caption={Computing $2^{20}$ SHA256 hashes in Python 3.6},
+  label={lst:python_bm}
+]{code/bm_initial_auth.py}
+
+\lstinputlisting[
+  language=c, 
+  caption={Computing $2^{20}$ SHA256 hashes in C},
+  label={lst:c_bm}
+]{code/bm.c}
+
+\begin{longtable}[]{@{}ll@{}}
+\toprule
+Python & C\tabularnewline
+\midrule
+\endhead
+1.4449s & 2.2960s\tabularnewline
+\bottomrule
+\caption{Average computation time for the calculation of $2^{20}$ SHA256 hashes
+in Python vs C}
+\label{table:bm_c_python}
+\end{longtable}
+
+This comparison tells us that in order to get an estimate of how long it would
+take to compute the whole key chain on an embedded CPU of a Galileo receiver we
+can simply relate the running times $t_j$ just measured, the processing power of
+the CPU where the benchmark was run $P_{BM}$ and the projected processing power
+of the CPU of the receiver $P_R$. The processing power is measured in DMIPS, a
+definition of which can be found in \cite{dmips}. A simple proportion shows that
 
 \begin{equation}
   t_j : P_{BM} = t_rj : P_R
@@ -166,16 +192,16 @@ Substituting the variables with the numbers devised above we can obtain an
 approximate conversion as follows:
 
 \begin{equation}
-  \begin{align}
-  t_rj &= t_j \frac{50 \cdot 10^3}{230} \
+  \begin{aligned}
+  t_rj &= \frac{50 \cdot 10^3}{230} t_j\
         = 246.30 t_j
-  \end{align}
+  \end{aligned}
 \end{equation}
 
-Using this conversion rate to ~\ref{table:bm1} we obtain ~\ref{table:bm1_recv}.
+Applying this conversion rate to table~\ref{table:bm1} we obtain the numbers in
+table~\ref{table:bm1_recv}.
 
-\begin{longtable}[]{@{}lll@{}}
-\label{table:bm1_recv}
+\begin{longtable}[]{@{}llll@{}}
 \toprule
 Chain size & SHA-256 & SHA3-224 & SHA3-256\tabularnewline
 \midrule
@@ -192,9 +218,23 @@ $2^{28}$ & 8.8459e4 & 7.1796e4 & 7.9306e4\tabularnewline
 $2^{29}$ & 2.1065e5 & 1.4355e5 & 1.4436e5\tabularnewline
 $2^{30}$ & 3.5531e5 & 2.9374e5 & 3.0714e5\tabularnewline
 \bottomrule
-\caption{Approximate key chain computation time vs key chain length for an
+\caption{Approximate key chain computation time [s] vs key chain length for an
 average GNSS receiver}
+\label{table:bm1_recv}
 \end{longtable}
+
+Looking at this end result we can see how the worst case scenario might result
+in severe energy consumption by the receiver itself. Considering just the
+lengths that have been proposed in the specifications, we can see how a receiver
+might spend between 3.5 and 5 hours of computation just to perform the
+authentication of a single key. Considering the case of mobile devices such as
+smartphones, this is an amount of time that can have a noticeable negative
+impact on battery level and might make data authentication infeasible for normal
+uses.
+
+To complete the analysis, we tried to analyze the change in computation time as
+the key length varies. As figure~\ref{fig:key_length} shows, there's a slight
+increase in computation time of a single hash ...
 
 % Discussion points
 % 1 the specs recommend for a chain to last 2^25/ - 2^26 keys. This means that a

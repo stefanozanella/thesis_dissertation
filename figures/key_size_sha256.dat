@@ -1,4 +1,5 @@
-#key size vs time (1 hash calculation)
+# key size vs time (1 hash calculation)
+# SHA256
 80 1.4059744119644164
 81 1.405664896965027
 82 1.4987003087997437

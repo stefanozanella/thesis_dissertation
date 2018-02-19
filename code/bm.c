@@ -19,7 +19,7 @@ int main() {
   for (int j = 0; j < 10; j++) {
     double start = get_time();
 
-    for (int k = 0; k < 10248576; k++) {
+    for (int k = 0; k < 10248576 << 2; k++) {
       SHA256_Init(&sha256);
       SHA256_Update(&sha256, "1234567890", 10);
       SHA256_Final(hash, &sha256);
