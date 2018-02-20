@@ -14,6 +14,37 @@ streaming, lossy channels that the Galileo program chose to implement in order
 to secure the navigation message. We'll also describe the proposed
 implementation of TESLA in the current Galileo subframe structure.
 
+\section{TESLA}
+Certain characteristics of the Galileo signal make the problem of authenticating
+the data very peculiar. Among others:
+\begin{itemize}
+  \item communication is unidirectional, from satellite to receiver(s)
+  \item receivers can connect at any point in time
+  \item the channel is lossy and doesn't guarantee data delivery
+  \item communication happen on a very low-speed channel
+\end{itemize}
+The first three traits make it easier to associate the Galileo signal to a
+multicast streaming communication. For this kind of communication, two schemes
+have been proposed in \cite{perrig}. One of them, TESLA, offers authentication
+of the sender with a minimal overhead, strong loss resistance and high
+scalability, at the price of slightly delayed authentication. The second of
+them, EMSS, adds non-repudiation on top of those features. The Galileo
+commission chose to implement TESLA, and therefore we'd now put our focus on it.
+
+\par
+
+As an overview, TESLA builds on top of classic asymmetric authentication schemes
+and MAC for data authentication. What TESLA does is to authenticate the date it
+sends and to disclose the key that authenticated that data in a later packet.
+Moreover, keys are connected with each other by using a key generation function
+that takes a previous key as input. To account for different reception speeds,
+TESLA supports using multiple chains, each with a different validity time for a
+single key.
+
+To go more into detail, it's useful to describe TESLA in successive steps, each
+of them building on top of the other by covering a specific need not covered in
+the previous one.
+
 % TOC
 % - threat model
 % - possible attacks
@@ -239,6 +270,13 @@ key size reaches around 180 bits, but in the case of the other functions the
 computation time remains constant. This leads to the conclusion that computation
 time is bound only by the length of the chain, and all other parameters don't
 affect the receiver in a significant way.
+
+\subsection{Floating KROOTs}
+As part of the protocol specification described in \cite{tesla_gal}, a mention
+is made regarding the possibility of sending DSM for KROOTs other than the one
+with index $0$, but no further information related to how this would work are
+provided. In this section we dive deeper into the topic and make some hypothesis
+on how floating KROOTs could be managed effectively and efficiently.
 
 % Discussion points
 % 1 the specs recommend for a chain to last 2^25/ - 2^26 keys. This means that a
