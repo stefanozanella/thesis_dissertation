@@ -234,7 +234,11 @@ uses.
 
 To complete the analysis, we tried to analyze the change in computation time as
 the key length varies. As figure~\ref{fig:key_length} shows, there's a slight
-increase in computation time of a single hash ...
+increase in computation time of a single hash in the case of SHA-256 when the
+key size reaches around 180 bits, but in the case of the other functions the
+computation time remains constant. This leads to the conclusion that computation
+time is bound only by the length of the chain, and all other parameters don't
+affect the receiver in a significant way.
 
 % Discussion points
 % 1 the specs recommend for a chain to last 2^25/ - 2^26 keys. This means that a
