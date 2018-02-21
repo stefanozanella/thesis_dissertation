@@ -1,0 +1,290 @@
+\chapter{A receiver-centric analysis of OSNMA}
+
+\section{Initial key authentication}
+The specification provided in \cite{osnma} recommends for a single key chain
+an extension of $2^{25}$ to $2^{26}$ keys. The actual duration of such a chain
+is dependent on the key size, the number of satellites and the number of MACK
+sections per subframe; with a key size of 82 bits, 36 satellites and 3 MACK
+sections per subframe, the chain would have a duration of around 4 months.
+
+Under these assumptions, we can try to analyze the scenario in which a receiver
+with no prior navigation data starts to receive a navigation message inclusive
+of DSM and verification tags, and subsequently tries to authenticate the
+received key against the root key of the chain.
+
+One hypothesis we make to analyze this scenario is that the key included in the
+DSM-KROOT section is the key with index $0$. That is, the constellation doesn't
+authenticate any other, more recent, key. This clarification is necessary since
+the protocol specification declares the possibility of transmitting more recent
+keys (i.e. with index higher than $0$) in the DSM, but doesn't provide any
+detail on how that would work. To separate the two problems, we provide here a
+worst-case analysis that's independent from the transmission of floating KROOTs.
+
+\par
+
+Having lined out the context, we can proceed on describing the set of operations
+a receiver is required to perform in order to authenticate the navigation
+message.
+
+Let's assume the receiver already received and decoded a sufficient amount of
+data to calculate the pseudorange against a satellite and to authenticate
+mentioned data. This includes having at hand at least one MAC $t_m$, the key that
+has been used to produce it $K_m$, and the root key $K_0$.
+
+Given only this set of data, in order to authenticate the key $K_m$ the
+receiver must perform precisely $m$ invocations of the one-way hashing function
+$F$ in order to verify that $K_0 = F^m(K_m)$. At the end of the calculation, the
+receiver will obtain $K_0' = F^m(K_m)$; if $K_0' = K_0$ (i.e. the calculated key
+matches the one embedded in the DSM), then the authentication of $K_m$ is
+successful. Otherwise, the key and associated data must be discarded.
+
+We can then easily see that if a receiver starts to receive data at the end of a
+key chain of length $L+1$, the initial key authentication will require applying
+$L$ times the hash function to $K_L$.
+
+\par
+
+Following this result, we've tried to perform a benchmark to understand time and
+resource consumption to aid hardware design and implementation for receivers
+that should support OSNMA.
+
+The algorithm described so far contains three degrees of freedom that have been
+analyzed separately: chain length, key length and selected hash function. As
+stated, the recommended chain length is between $2^{25}$ and $2^{26}$; to
+provide a more extensive overview our benchmark ranges between $2^{20}$ and
+$2^{30}$ keys. The options for key length are fixed and provided in the
+\textit{Key Size} included in the DSM-KROOT; these range between $80$ and $256$.
+The possible hash functions are SHA256, SHA3-224 and SHA3-256.
+
+Since the low availability of open source libraries that support SHA3 at the
+time of writing, we've chosen to perform the benchmarking using \textbf{Python
+3.6}. Since this dynamic language is not what usually gets used to write
+embedded code, we've compared its performances with a C implementation of the
+same logic. The two programs both measure the time it takes to perform $2^{20}$
+computations of a SHA256 chain.
+
+\par
+
+The first test measures how much time it takes to compute the whole chain of
+keys, for different lengths of the chain. Tested lengths vary between $2^{20}$
+and $2^{30}$ keys, so that the suggested values of $2^{25}$ and $2^{26}$ lie in
+the middle of the range. The computation is done against a fixed key of $80$
+bits of length, and the same test has been performed for all the hash functions
+supported by the protocol.
+
+% TODO Graph here
+
+The results of this first benchmark can be seen in figure~\ref{fig:bm1}. The values
+that make up the graph can be seen in table~\ref{table:bm1}. It's important to
+observe that the x-axis is in logarithmic scale since the value represents the
+exponent to the power of $2$ used to calculate the chain length.  We can observe
+that the relationship is basically linear (i.e. transforming the x-axis to a
+linear scale would make the graph look like a line); that is, doubling the size
+of the chain directly doubles the time it takes to compute the chain.
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule
+Chain size & SHA-256 & SHA3-224 & SHA3-256\tabularnewline
+\midrule
+\endhead
+$2^{20}$ & 1.4449 & 1.1455 & 1.1296\tabularnewline
+$2^{21}$ & 2.8077 & 2.2665 & 2.2768\tabularnewline
+$2^{22}$ & 5.5871 & 4.5320 & 4.7067\tabularnewline
+$2^{23}$ & 11.189 & 9.0380 & 9.0916\tabularnewline
+$2^{24}$ & 22.408 & 18.161 & 18.170\tabularnewline
+$2^{25}$ & 44.857 & 36.362 & 40.316\tabularnewline
+$2^{26}$ & 89.838 & 73.052 & 97.746\tabularnewline
+$2^{27}$ & 179.45 & 148.20 & 154.51\tabularnewline
+$2^{28}$ & 359.15 & 291.50 & 321.99\tabularnewline
+$2^{29}$ & 855.27 & 582.81 & 586.11\tabularnewline
+$2^{30}$ & 1442.6 & 1192.6 & 1247.0\tabularnewline
+\bottomrule
+\caption{Key chain computation time [s] vs key chain length}
+\label{table:bm1}
+\end{longtable}
+
+Another general observation is that the computation time improves slightly for
+the SHA3 family of hash functions, but in general the variability in computation
+time is dominated by the chain length.
+
+One important aspect to focus our attention on is the relative significance of
+this benchmark with respect to the average computation power of an average
+receiver. The numbers just described have been obtained by running the code on a
+MacBook Pro sporting a 2.6GHz Intel Core i5 processor. A benchmark sheet such as
+\cite{bm_intel_core_i5} can show that such a processor can handle roughly $50
+000$ DMIPS. As a reference, the STA8088EXG GNSS receiver \cite{st_rec_specs}
+sports an ARM9 processor clocking at a maximum of 208MHz. Usually in such
+receivers the CPU clocks at much lower rates than their maximum (see for example
+\cite{mediatek_specs}). According to the knowledge base of ARM, the maximum
+performance of the ARM9 family reaches $1.1$ DMIPS per MHz, which means we can
+assume the reference CPU can achieve roughly $230$ DMIPS when at full speed.
+
+For us to translate these observations to an estimate of the running time of the
+chain computation on an embedded device, we've correlated the running time of
+the Python code to that of its C counterpart. Surprisingly, the same benchmark
+for a key chain of length $2^{20}$ over the SHA-256 function seems to be more
+performant in Python than in C, as exposed in table~\ref{table:bm_c_python}. As a
+reference, the Python snippet is provided in listing~\ref{lst:python_bm} and its C
+counterpart in listing~\ref{lst:c_bm}. This is because the Python implementation
+uses the same libraries as the C code, but the Python environment calls out to
+architecture-specific assembly implementations of those functions. In any case,
+this shows that the performances of the two implementations are within the same
+order of magnitude, so comparing directly against the Python results is a good
+approximation of the best case scenario.
+
+\lstinputlisting[
+  language=python, 
+  caption={Computing $2^{20}$ SHA256 hashes in Python 3.6},
+  label={lst:python_bm}
+]{code/bm_initial_auth.py}
+
+\lstinputlisting[
+  language=c, 
+  caption={Computing $2^{20}$ SHA256 hashes in C},
+  label={lst:c_bm}
+]{code/bm.c}
+
+\begin{longtable}[]{@{}ll@{}}
+\toprule
+Python & C\tabularnewline
+\midrule
+\endhead
+1.4449s & 2.2960s\tabularnewline
+\bottomrule
+\caption{Average computation time for the calculation of $2^{20}$ SHA256 hashes
+in Python vs C}
+\label{table:bm_c_python}
+\end{longtable}
+
+In other words, this comparison tells us that in order to get an estimate of how
+long it would take to compute the whole key chain on an embedded CPU of a
+Galileo receiver we can simply relate the running times $t_j$ just measured, the
+processing power of the CPU where the benchmark was run $P_{BM}$ and the
+projected processing power of the CPU of the receiver $P_R$. The processing
+power is measured in DMIPS, a definition of which can be found in \cite{dmips}.
+A simple proportion shows that
+
+\begin{equation}
+  t_j : P_{BM} = t_rj : P_R
+\end{equation}
+
+where $t_rj$ is the estimate of the running time on the receiver processor. This
+equation solved for this last variable yields:
+
+\[
+  t_rj = t_j \frac{P_{BM}}{P_R}
+\]
+
+Substituting the variables with the numbers devised above we can obtain an
+approximate conversion as follows:
+
+\begin{equation}
+  \begin{aligned}
+  t_rj &= \frac{50 \cdot 10^3}{230} t_j\
+        = 246.30 t_j
+  \end{aligned}
+\end{equation}
+
+Applying this conversion rate to table~\ref{table:bm1} we obtain the numbers in
+table~\ref{table:bm1_recv}.
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule
+Chain size & SHA-256 & SHA3-224 & SHA3-256\tabularnewline
+\midrule
+\endhead
+$2^{20}$ & 355.88 & 282.14 & 278.22\tabularnewline
+$2^{21}$ & 691.54 & 558.24 & 560.78\tabularnewline
+$2^{22}$ & 1376.1 & 1116.2 & 1159.3\tabularnewline
+$2^{23}$ & 2755.9 & 2226.1 & 2239.3\tabularnewline
+$2^{24}$ & 5519.1 & 4473.1 & 4475.3\tabularnewline
+$2^{25}$ & 1.1048e4 & 8956.0 & 9929.8\tabularnewline
+$2^{26}$ & 2.2127e4 & 1.7793e4 & 2.4075e4\tabularnewline
+$2^{27}$ & 4.4199e4 & 3.6502e4 & 3.8056e4\tabularnewline
+$2^{28}$ & 8.8459e4 & 7.1796e4 & 7.9306e4\tabularnewline
+$2^{29}$ & 2.1065e5 & 1.4355e5 & 1.4436e5\tabularnewline
+$2^{30}$ & 3.5531e5 & 2.9374e5 & 3.0714e5\tabularnewline
+\bottomrule
+\caption{Approximate key chain computation time [s] vs key chain length for an
+average GNSS receiver}
+\label{table:bm1_recv}
+\end{longtable}
+
+Looking at this end result we can see how the worst case scenario might result
+in severe energy consumption by the receiver itself. Considering just the
+lengths that have been proposed in the specifications, we can see how a receiver
+might spend between 3.5 and 5 hours of computation just to perform the
+authentication of a single key. Considering the case of mobile devices such as
+smartphones, this is an amount of time that can have a noticeable negative
+impact on battery level and might make data authentication infeasible for normal
+uses.
+
+To complete the analysis, we tried to analyze the change in computation time as
+the key length varies. As figure~\ref{fig:key_length} shows, there's a slight
+increase in computation time of a single hash in the case of SHA-256 when the
+key size reaches around 180 bits, but in the case of the other functions the
+computation time remains constant. This leads to the conclusion that computation
+time is bound only by the length of the chain, and all other parameters don't
+affect the receiver in a significant way.
+
+\section{Floating KROOTs}
+As part of the protocol specification described in \cite{tesla_gal}, a mention
+is made regarding the possibility of sending DSM for KROOTs other than the one
+with index $0$, but no further information related to how this would work are
+provided. In this section we dive deeper into the topic and make some hypothesis
+on how floating KROOTs could be managed effectively and efficiently.
+
+% Discussion points
+% 1 the specs recommend for a chain to last 2^25/ - 2^26 keys. This means that a
+%   receiver could receive its first frame of authenticated data close to the
+%   end of the chain, and has to verify the key against the root key that is
+%   close to 2^25 keys away. This means the receiver has to perform 2^25 hash
+%   calculations before being sure the key is valid. It would be interesting to
+%   know:
+%   - how much time does this take with a normal processor?
+%   - is there a more efficient way to handle the bootstrap process?
+% 2 the specs point out the potential use of floating KROOTs. These require the
+%   receiver to know the index of the key being transmitted. The specs don't
+%   seem to specify how that is achieved
+% 3 since the key chain is shared across satellites, to authenticate data for a
+%   satellite a receiver must perform more than one hash calculation. It would
+%   be interesting to analyze:
+%   - upper bound on number of hash calculations a receiver must perform to
+%     authenticate data from all satellites in view at a certain point in time
+%   - guidelines on efficient handling of keys calculation and storage within a
+%     subframe
+%   - a more efficient alternative to this scheme
+% 4 in scheme IV it's required that the sender sends along the interval index i,
+%   the specs don't do this?
+% 5 a possible DOS attack is to forge a packet marked as being from an interval
+%   far in the future. A possible fix is to ignore packets if they could have
+%   not been sent yet -> does a Galileo receiver have any means to do this? Any
+%   condition on the fields that guarantees that this cannot happen?
+% 6 local clocks of the sender and receiver don't drift too much during a
+%   session -> client needs to know a loose upper bound on the maximum
+%   synchronization error
+% 7 with the authentication scheme, the receiver needs to cache data before it
+%   can verify it: how much data needs to be cached?
+% 8 in scheme IV at session setup the sender should send and authenticate the
+%   starting time of the first interval, the duration of an interval and the
+%   maximum delay d. The specs don't do this in full
+% 9 the specs don't specify any value for the propagation delay. It would be
+%   interesting to provide a recommended value
+% 10 suggest that receivers initially synchronize time over the network before
+%   starting to perform authentication with TESLA due to the protocol's
+%   requirements? -> that would still be somehow insufficient, as it requires
+%   the network time sync protocol is also authenticated
+%     Or maybe the receiver can estimate an upper bound to the synchronization
+%   error during the acquisition phase?
+% 11 key size, MACK section length and MAC size are all provided in the
+%    initial blocks of a DSM-KROOT. These are needed by the receiver in order to be
+%    able to successfully decode the MACK sections. The problem here is that the
+%    DSM-KROOT is transmitted at a way lower rate than the MACK section. It would
+%    be interesting to:
+%     - describe the worst case delay until a receiver can start authenticate
+%       data
+%     - provide a suggestion on how a receiver should implement different
+%       stages: one in which it receives the operational parameters, one in
+%       which it can receive/decode in parallel a DSM-KROOT and the MACKs, and
+%       ome in which it can also authenticate the data
+

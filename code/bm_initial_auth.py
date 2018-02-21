@@ -2,7 +2,7 @@ import hashlib
 import time
 
 iterations = 10
-chain_lengths = range(20,30+1)
+chain_lengths = [20]#range(20,30+1)
 
 for exp in chain_lengths:
     chain_length = 2**exp
