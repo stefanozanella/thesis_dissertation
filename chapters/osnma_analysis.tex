@@ -235,14 +235,6 @@ provided. In this section we dive deeper into the topic and make some hypothesis
 on how floating KROOTs could be managed effectively and efficiently.
 
 % Discussion points
-% 1 the specs recommend for a chain to last 2^25/ - 2^26 keys. This means that a
-%   receiver could receive its first frame of authenticated data close to the
-%   end of the chain, and has to verify the key against the root key that is
-%   close to 2^25 keys away. This means the receiver has to perform 2^25 hash
-%   calculations before being sure the key is valid. It would be interesting to
-%   know:
-%   - how much time does this take with a normal processor?
-%   - is there a more efficient way to handle the bootstrap process?
 % 2 the specs point out the potential use of floating KROOTs. These require the
 %   receiver to know the index of the key being transmitted. The specs don't
 %   seem to specify how that is achieved
@@ -287,4 +279,4 @@ on how floating KROOTs could be managed effectively and efficiently.
 %       stages: one in which it receives the operational parameters, one in
 %       which it can receive/decode in parallel a DSM-KROOT and the MACKs, and
 %       ome in which it can also authenticate the data
-
+% 12 how does authenticated data rotate satellites?

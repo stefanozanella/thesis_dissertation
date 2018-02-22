@@ -100,7 +100,62 @@ verified).
 
 \section{Galileo OSNMA}
 In 2016, a specification for a data authentication protocol in Galileo has been
-released under the name of OSNMA \cite{osnma}. This specification build on top
+released under the name of OSNMA \cite{osnma}. This specification builds on top
 of the TESLA algorithm just described with a few notable exceptions. We'll give
 here an introduction to this protocol to contextualize the analysis that
 follows.
+
+\par
+
+The OSNMA specification describes two distinct sets of information that are sent
+along together but at different rates: the HKROOT and the MACK sections. The
+HKROOT contains a set of headers needed to correctly interpret the
+authentication data, the root key of the chain in force and its digital
+signature. The MACK section contains a configurable number of MAC which
+authenticate different groups of fields contained in the navigation message, and
+the key with which the MAC are generated.
+
+These two pieces of information are transmitted together at a rate of 40 bits
+per page (30s) in the field called "Reserved 1" in the Galileo ICD
+\cite{galileoicd}. The HKROOT section occupies 8 of those bits, while the
+remaining 32 are allocated for the MACK section.
+
+% TODO Add piece of Figure 2 from OSNMA specs
+
+In total, a HKROOT section has a variable length and it's transmitted in blocks
+of 104 bits - one block per subframe. The MACK section instead has a fixed
+length of 480 bits and can contain a variable number of MACs and keys (up to 480
+bits; the remaining bits are padded).
+
+The HKROOT can also be thought as composed of two sections: the header and the
+DSM-KROOT. The header contains information about the overall NMA status and
+about the DSM transmitted in the section. The first header is composed of three
+fields: the operational status of NMA, the status of the DSM and the ID of the
+chain in force. The second header contains the ID of the DSM, which identifies
+also if the transmitted information is related to a root key being
+authenticated, or if it's a message related to a key revocation. Also, an
+indication of the current block being received is sent in this header. The
+DSM-KROOT instead contains a set of parameters like the total number of blocks,
+the hash function to be used and the key size, together with the DSM and the
+associated key.
+
+% TODO Add Table 6 from OSNMA specs
+
+The MACK section instead contains the authentication codes for the data
+transmitted in the navigation message. This data is authenticated with different
+MAC, therefore the MACK message also contains information on what data is
+included in the message from which the MAC has been generated, in the form of a
+4 bit field called ADKD (Authentication Data \& Key Delay). Together with this,
+the PRN of the satellite being authenticated and an Issue of Data field
+indicating if the data transmitted is new are sent.
+
+After the MACs, the key that generated them follows, the size of which is
+specified in the DSM.
+
+% TODO Add Figure 4 from OSNMA
+
+The pieces of information included in OSNMA are to be used by the receiver as
+follows:
+\begin{itemize}
+\item
+\end{itemize}
