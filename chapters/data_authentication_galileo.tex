@@ -157,5 +157,55 @@ specified in the DSM.
 The pieces of information included in OSNMA are to be used by the receiver as
 follows:
 \begin{itemize}
-\item
+\item the receiver must first receive and decode in full the root key $K_R$
+transmitted in the DSM
+\item the receiver computes the DSM for the root key as follows
+\begin{align*}
+& M = (\text{NMA\_Header} \Vert \text{CIDKR} \Vert \text{NMACK} \Vert \text{HF}
+\Vert \text{MF} \Vert \text{KS} \Vert \text{MS} \Vert \text{MO} \Vert \\
+& \text{KROOT WN} \Vert \text{KROOT DOW} \Vert \alpha \Vert K_R) \\
+\\
+& S = signature(M, K_{pub})
+\end{align*}
+
+where for $signature()$ ECDSA is proposed in \cite{osnma} with several supported
+signature lengths, the actual value of it is univocally identified by the
+\textit{Public Key ID} transmitted in the DSM header. $K_{pub}$ is the public
+key identified by mentioned ID and built in into the receiver. All the other
+parameters are defined in \cite{osnma}.
+
+If the computed signature matches the received DSM, then the received KROOT is
+to be considered valid
+\item the receiver reads a MACK section, decodes the MACs and the key $K_j$
+associated to them. Depending on how the protocol is configured, the receiver
+might have to decode the next subframe to get the key that generated the MACs in
+its possession.
+\item the receiver identifies the distance $m$ between the root key $K_R$ and
+the key sent in the MACK section $K_j$
+\item the receiver verifies the key sent in the MACK section against the root
+key already verified by applying $m$ times the key generating function $F$ on
+$K_j$:
+\[
+K'_R = F^m(K_j)
+\]
+\item the receiver verifies that $K'_R = K_R$. If the equality hold true, then
+the data received is legitimated and the receiver can proceed in verifying the
+actual data in the navigation message against the MACs already received.
+\item the navigation data is verified by building a message in the format
+\[
+m = (\text{PRN\_N} \Vert \text{PRN\_A} \Vert GST_{SF} \Vert \text{CTR} \Vert
+\text{NMA\_Status\_Header} \Vert \text{navdata})
+\]
+where $\text{PRN\_N}$ is the PRN of the satellite being authenticated,
+$\text{PRN\_A}$ is the PRN of the satellite sending the authentication data,
+$GST_{SF}$ is the Galileo system time of the start of the subframe in which the
+MAC is contained, $CTR$ is the position of the MAC in the MACK section,
+$\text{NMA\_Status\_Header}$ is the NAM status field in the NMA header, and
+$\text{navdata}$ is fetched looking into the ADKD field of the MAC-Info section
+of the MAC and combining the data field according to \cite{osnma}. The message
+thus constructed is then verifying by applying to it the hash function specified
+by the protocol together with the key $K_j$. If the resulting hash, truncated
+accordingly to the MAC length specified in the protocol configuration, matches
+the MAC in possession of the receiver, then the data is considered authenticated
+and valid.
 \end{itemize}
