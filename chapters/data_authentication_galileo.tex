@@ -116,7 +116,7 @@ authenticate different groups of fields contained in the navigation message, and
 the key with which the MAC are generated.
 
 These two pieces of information are transmitted together at a rate of 40 bits
-per page (30s) in the field called "Reserved 1" in the Galileo ICD
+per page (2s) in the field called "Reserved 1" in the Galileo ICD
 \cite{galileoicd}. The HKROOT section occupies 8 of those bits, while the
 remaining 32 are allocated for the MACK section.
 
@@ -137,7 +137,8 @@ authenticated, or if it's a message related to a key revocation. Also, an
 indication of the current block being received is sent in this header. The
 DSM-KROOT instead contains a set of parameters like the total number of blocks,
 the hash function to be used and the key size, together with the DSM and the
-associated key.
+associated key. The DSM-KROOT can be optionally be swapped with the DSM-PKR
+section for key revocation.
 
 % TODO Add Table 6 from OSNMA specs
 

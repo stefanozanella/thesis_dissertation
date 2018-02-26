@@ -1,6 +1,120 @@
 \chapter{A receiver-centric analysis of OSNMA}
 
-\section{Initial key authentication}
+In this chapter we'll take a critical look at the OSNMA specification, trying to
+reformulate it from a receiver point of view. The goal is to identify key areas
+of possible improvement for the protocol, together with critical aspects for a
+receiver implementation, and to provide suggestions for both.
+
+\par
+
+When thinking about a Galileo receiver capable of supporting OSNMA, we can
+identify two distinct modes of operations: a bootstrap phase and a nominal one.
+In the bootstrap phase the receiver doesn't possess any data apart from a public
+key capable of authenticating a DSM; therefore in this phase the receiver is not
+formally capable of authenticating the navigation message, and needs to perform
+operations which can bring it into the nominal mode. In this phase the receiver
+is capable of authenticating the navigation message using the data it has stored
+locally and the MACK sections it receives together with the unauthenticated
+message.
+
+This distinction is purely analytical in nature, but can help breaking down the
+problem in distinct blocks, each of which we'll analyze in the sections that
+follow.
+
+\section{Authentication bootstrap}
+For the bootstrap phase we'll consider a generic Galileo receiver with no access
+to any data network other than the radio channels over which the Galileo
+satellites transmit. This receiver has never received before any navigation
+data, and only contains onboard a set of public keys that should allow it to
+verify the authenticity of a root key sent in the DSM-KROOT section.
+
+To keep the discussion focused, we'll skip over the specific details of
+acquiring one or more signals and we'll assume the receiver can enter the
+acquisition phase for a sufficient number of in-view satellites, and to
+successfully move into the tracking phase which will allow it to decode the
+Galileo navigation data frame.
+
+\par
+
+Under these conditions, when the receiver starts its operations it has no
+knowledge about the key chain currently in force, and therefore if it wants to
+authenticate the navigation message the first thing it has to do is to receive a
+DSM-KROOT and decode the root key. We'll start our analysis from here.
+
+\subsection{Root key authentication}
+The root key is sent in the HKROOT section of the navigation data frame. This
+section of data is transmitted at a rate of 8 bits every 2s (i.e. 4bps) and is
+composed of two headers of 8 bits each, and of a variable number of blocks of
+104 bits. Each subframe contains the two headers and a DSM block. According to
+the current specification, the number of blocks that compose a DSM can vary
+between 6 and 16 (but there are 5 reserved values so potentially it could be
+longer). In order for a receiver to be able to correctly compose a DSM, in the
+first block the total number of blocks is sent.
+
+\subsubsection{HKROOT receiving time}
+The first simple conclusion we draw from here is that reception of a whole DSM
+takes between 180s and 480s. In order to speed up the bootstrap operation a
+receiver might cache the navigation message sent, provided it won't use it until
+it has been authenticated in full. The amount of caching memory needed will be
+analyzed later on in the chapter.
+
+\subsubsection{DSM variable size}
+A second observation is about not knowing the precise size of the DSM upfront.
+Since the receiver needs to cache the DSM until it's fully received and can be
+decoded, two general approaches are possible:
+\begin{itemize}
+  \item a fixed amount of memory is allocated that accounts for the longest
+    possible DSM. This memory could potentially be separate from the RAM
+    associated with the CPU that perform the authentication operations, in order
+    to avoid security problems due to buffer overflows. This could be expensive
+    and potentially inefficient (for example, if a DSM is only 6 blocks long,
+    then the memory reserved for the other 10 blocks is wasted)
+  \item the RAM of the computational unit is used to cache the DSM until it's
+    possible to decode it. In this case, a variable amount of memory is
+    allocated, and two strategies could be followed to manage the length
+    variability:
+    \begin{itemize}
+      \item the receiver makes sure that it starts decoding a DSM from its first
+        block, which contains the information about the total number of blocks.
+        This means potentially discarding several minutes of data
+      \item the receiver stores the blocks as individual pieces of information
+        and then recombines them at the end (for example, using some form of
+        sorting algorithm), or on the fly (for example, using something like a
+        linked list)
+    \end{itemize}
+\end{itemize}
+
+This scenario offers the possibility for several considerations. The first one
+is that, no matter the strategy chosen to store the DSM blocks, care must be
+taken not to expose the receiver to memory overflow attacks. Since the data
+that's being received at this point in time is not authenticated yet, it could
+also be forged by an attacker who would send more blocks than what's advertised
+in the first DSM block. If a receiver doesn't implement a preventive check, this
+kind of attack might allow an attacker to overwrite some reserved memory with
+executable malicious code. A simple check that the number of the block being
+processed is within the advertised length is sufficient to prevent this kind of
+vulnerability.
+
+The second consideration is that neither of the last two scenarios are ideal.
+The first one is the safest one, but results in even longer bootstrap times. The
+second option is faster but it's based on the assumption that the satellites
+will keep sending the same key over and over again (i.e. if blocks with lower
+indexes are missed, then they can be received later on by a successive
+transmission of the same key). Moreover, dealing with the unknown length of the
+DSM requires more expensive data structures and operations.
+
+That said, an ideal approach for a receiver would be to be able to know the
+total length of the DSM no matter at what point of its transmission it starts to
+receive. This way the receiver could at once allocate all the needed memory, and
+subsequently fill in the gaps with the received blocks (provided it also
+implements the check to prevent memory overflow attacks). In the OSNMA protocol
+this could be achieved by sending the field \textit{Number of blocks} in the DSM
+header rather than the first block of the DSM. This would increase the size of
+the DSM Header from 8 bits to 12 bits, resulting in an additional overhead that
+ranges between 24 bit (when a DSM is composed of 6 blocks) to 64 bits (when a
+DSM is composed of 16 blocks).
+
+\subsection{Initial key authentication}
 The specification provided in \cite{osnma} recommends for a single key chain
 an extension of $2^{25}$ to $2^{26}$ keys. The actual duration of such a chain
 is dependent on the key size, the number of satellites and the number of MACK
