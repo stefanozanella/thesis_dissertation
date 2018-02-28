@@ -362,23 +362,31 @@ between the two keys, a receiver needs to consider:
   \item $t_m$: the time (in seconds) of transmission start of the subframe in
     which $K_m$ is applied
   \item $t_j$: the KROOT time (in seconds) calculated as combination of KROOT WN
-    and KROOT DOW as described above
-  \item $n_M$: the number of MACK sections sent in a subframe. This directly
-    relates to the number of keys applied in a subframe as one MACK section
-    contains always one key, and it's sent in the \textrm{NMACK} field in the
-    HKROOT section
-  \item $p$: the position of key $K_m$ in the subframe in which it's transmitted
-    (i.e. how many keys are sent in the subframe before $K_m$)
+    and KROOT DOW as described below
+  \item $n_M$: the number of MACK sections contained in a subframe, as sent in
+    the \textrm{NMACK} field in the HKROOT section. This directly relates to the
+    number of keys applied in a subframe as one MACK section always contains one
+    key 
+  \item $p$: the relative position of key $K_m$ in the chain starting from the
+    first key of the first MACK section of the subframe in which $K_m$ is sent
+  \item $NS$: the number of satellites, normally set to 36 as per protocol
+    specification
 \end{itemize}
 Once these parameters are known, then it's possible to calculate the distance
 between the keys as follows:
 \begin{equation}
   \label{eq:d}
-  d = \frac{t_m - t_j}{30} n_M + p
+  d = \frac{t_m - t_j}{30} n_M \cdot \textrm{NS} + p
 \end{equation}
 
-Having achieved this result we can now analyze how to calculate $t_m - t_j$ and
-$p$, since OSNMA doesn't send those times explicitly.
+In plain words, this equation means that the number of keys in the chain between
+the root key and the key being received is composed of the sum of the number of
+keys used to authenticate all the previous subframes for all satellites and the
+number of keys that stand in between the received key and the first key in the
+subframe that's currently being read by the receiver.
+Having decomposed this result in these two parts we can now analyze how to
+calculate $t_m - t_j$ and $p$, since OSNMA doesn't send these parameters
+explicitly.
 
 To calculate $t_j$, we can start from the week number \textrm{KROOT WN} and the
 day of week \textrm{KROOT DOW} associated to the KROOT that are sent in the
@@ -406,17 +414,51 @@ the time of week $\textrm{TOW}$ in seconds; this yields:
 
 Now expanding ~\ref{eq:t_j} and ~\ref{eq:t_m} in ~\ref{eq:d} we obtain:
 \begin{equation}
+  \label{eq:d2}
   \begin{aligned}
     d &= \frac{(t_0 + \textrm{WN}_m \cdot 604800 + \textrm{TOW}_m) - (t_0 +
-    \textrm{WN}_j \cdot 604800 + \textrm{DOW}_j \cdot 86400)}{30} n_M + p \\
+    \textrm{WN}_j \cdot 604800 + \textrm{DOW}_j \cdot 86400)}{30} n_M \cdot
+    \textrm{NS} + p \\
     &= \frac{\textrm{WN}_m \cdot 604800 + \textrm{TOW}_m - \textrm{WN}_j \cdot
-    604800 - \textrm{DOW}_j \cdot 86400}{30} n_M + p \\
+    604800 - \textrm{DOW}_j \cdot 86400}{30} n_M \cdot \textrm{NS} + p \\
     &= \frac{(\textrm{WN}_m - \textrm{WN}_j) \cdot 604800 + (\textrm{TOW}_m -
-    \textrm{DOW}_j \cdot 86400)}{30} n_M + p
+    \textrm{DOW}_j \cdot 86400)}{30} n_M \cdot \textrm{NS} + p
   \end{aligned}
 \end{equation}
 
-TODO Calculation of p
+What remains to be done now it so calculate the parameter $p$. In order to do
+so we need to keep again into consideration the fact that the keys belonging
+to a single key chain are spread across satellites and that therefore
+consecutive keys in MACK sections sent from the same satellite are actually
+separated by $\textrm{NS}$ keys. In addition to that, since there is no index
+sent within the MACK sections, the receiver needs to keep a counter $l$ of how
+many keys it receives within a subframe (this counter will be reset with every
+new subframe). This will directly count the position of a given key within the
+sub-chain starting at the beginning of the subframe. This allows us to define
+$p$ as
+\begin{equation}
+  \label{eq:p}
+  p = l \cdot \textrm{NS}
+\end{equation}
+
+Finally, expanding ~\ref{eq:p} into ~\ref{eq:d2} we obtain:
+\begin{equation}
+  \begin{aligned}
+    d &= \frac{(\textrm{WN}_m - \textrm{WN}_j) \cdot 604800 + (\textrm{TOW}_m -
+    \textrm{DOW}_j \cdot 86400)}{30} n_M \cdot \textrm{NS} + l \cdot \textrm{NS} \\
+    &= \left[\frac{(\textrm{WN}_m - \textrm{WN}_j) \cdot 604800 + (\textrm{TOW}_m -
+    \textrm{DOW}_j \cdot 86400)}{30} n_M  + l\right] \cdot \textrm{NS}
+  \end{aligned}
+\end{equation}
+
+% TODO Conclusions:
+% - calculating the distance from the root key is also not super easy
+% - NS is not sent anywhere and not authenticated so potentially insecure
+% - resolution is 1 day -> so only specific intermediate keys can be sent
+% - proposal on the frequency of floating KROOT
+% - based on that, proposal on reducing the overall length of the chains and
+%   eliminating the need for floating KROOTs
+A first observation we can make regarding this result is that 
 
 \subsection{Clock synchronization}
 % Discussion points

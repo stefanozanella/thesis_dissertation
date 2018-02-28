@@ -177,19 +177,19 @@ parameters are defined in \cite{osnma}.
 
 If the computed signature matches the received DSM, then the received KROOT is
 to be considered valid
-\item the receiver reads a MACK section, decodes the MACs and the key $K_j$
-associated to them. Depending on how the protocol is configured, the receiver
-might have to decode the next subframe to get the key that generated the MACs in
-its possession.
-\item the receiver identifies the distance $m$ between the root key $K_R$ and
+\item once the root key has been verified, the receiver can start to read a MACK
+section, and then decode the MACs and the key $K_j$ associated to them.
+Depending on how the protocol is configured, the receiver might have to decode
+the next subframe to get the key that generated the MACs in its possession.
+\item the receiver identifies the distance $d$ between the root key $K_R$ and
 the key sent in the MACK section $K_j$
 \item the receiver verifies the key sent in the MACK section against the root
-key already verified by applying $m$ times the key generating function $F$ on
+key already verified by applying $d$ times the key generating function $F$ on
 $K_j$:
 \[
 K'_R = F^m(K_j)
 \]
-\item the receiver verifies that $K'_R = K_R$. If the equality hold true, then
+\item the receiver verifies that $K'_R = K_R$. If the equality holds true, then
 the data received is legitimated and the receiver can proceed in verifying the
 actual data in the navigation message against the MACs already received.
 \item the navigation data is verified by building a message in the format
@@ -210,3 +210,13 @@ accordingly to the MAC length specified in the protocol configuration, matches
 the MAC in possession of the receiver, then the data is considered authenticated
 and valid.
 \end{itemize}
+
+\par
+
+One important aspect of OSNMA is the generation of the key chain. According to
+the protocol, the ground segments generates one chain that's valid for all
+satellites. This means that when two subsequent keys $K_i$ and $K_j$ are
+received from a same satellite, they're not at one step distance (i.e. $K_i =
+F(K_j)$ doesn't hold) but in between them there are other 35 keys, one for each
+satellite (where the total number of satellites is nominally 36 but should be
+configurable according to the specification).
