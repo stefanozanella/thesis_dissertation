@@ -102,6 +102,7 @@
                 tablewithin=chapter]{caption}
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
 \RequirePackage{microtype}
+\RequirePackage[bottom]{footmisc}
 
 % Tikz
 \usepackage{tikz}

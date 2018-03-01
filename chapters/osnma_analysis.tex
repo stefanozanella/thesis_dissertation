@@ -293,6 +293,7 @@ Substituting the variables with the numbers devised above we can obtain an
 approximate conversion as follows:
 
 \begin{equation}
+  \label{eq:mips_conv}
   \begin{aligned}
   t_rj &= \frac{50 \cdot 10^3}{230} t_j\
         = 246.30 t_j
@@ -451,14 +452,64 @@ Finally, expanding ~\ref{eq:p} into ~\ref{eq:d2} we obtain:
   \end{aligned}
 \end{equation}
 
-% TODO Conclusions:
-% - calculating the distance from the root key is also not super easy
-% - NS is not sent anywhere and not authenticated so potentially insecure
-% - resolution is 1 day -> so only specific intermediate keys can be sent
+A first observation we can make regarding this result is that calculating the
+distance between two keys is not as straightforward as it could be for an
+embedded receiver. While it's true that it involves only integer arithmetic, it
+still requires the receiver to perform multiplications and divisions. This is
+true also for calculating the distance between two random keys in the chain, not
+just between a key in a MACK section and a root key. While the complexity of
+this calculation is not as high as that described above to correlate a key at
+the end of the chain with the root key, it is nevertheless an operation that
+needs to be run often, as every received key needs to be correlated to a
+previously authenticated key by means of its distance to it. A possible
+optimization could be to send an index along with the keys (both in the floating
+KROOT and MACK sections). This would not only reduce the receiver operations to
+just one single subtraction, but also make the key generation strategy
+transparent to the receiver (i.e. if the ground segment decides to change the
+way keys are spread across satellites, there would be no need to reprogram the
+receivers).
+
+A second observation is that the time resolution for floating KROOT is 1
+day. This means that not every key can be sent in a floating KROOT, but rather
+only the first keys that is applied at the beginning of a Galileo day can be
+correctly targeted by means of the KROOT WN and KROOT DOW parameters. This means
+that approximately 1 out of a minimum of ~103680 and 1 out of a maximum of
+~414720 keys can be used as floating KROOTs \footnote{these two numbers are the number of
+keys sent in a day in the case where either 1 or 4 keys are consumed in a
+subframe, calculated by multiplying the number of keys in a subframe by the
+number of satellites and by the number of subframes in a day:
+$\frac{86400}{30}36 \cdot \textrm{NMACK}$}. Since this represents the minimum distance
+that keys will have from the nearest KROOT, we can derive a loose lower bound on
+how long it can take under these circumstances to verify a key against a
+floating KROOT. Applying the same benchmark script as used in the previous
+section, and applying the same performance conversion devised in
+~\ref{eq:mips_conv}, we obtain the numbers in table ~\ref{table:float_kroot}.
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule
+  Distance from KROOT & Running time on Intel Core i5 (s) & Estimated running
+  time on ARM (s) \tabularnewline
+\midrule
+\endhead
+  103680 & 0.1411 & 34.753 \tabularnewline
+  414720 & 0.5688 & 140.10 \tabularnewline
+\bottomrule
+  \caption{Lower bounds for authentication of a key against a floating KROOT}
+\label{table:float_kroot}
+\end{longtable}
+
+This is a definite improvement over the time it takes to authenticate a key at
+the end of the chain with the root key at its beginning, but given this is a
+lower range (even if loose) it still shows that authenticating a key coming from
+a MACK section against a key authenticated by ground segment and sent in a KROOT
+section is an expensive operation that might undermine the overall performance
+of a receiver.
+
+% TODO if you have time
+% Conclusions:
 % - proposal on the frequency of floating KROOT
 % - based on that, proposal on reducing the overall length of the chains and
 %   eliminating the need for floating KROOTs
-A first observation we can make regarding this result is that 
 
 \subsection{Clock synchronization}
 % Discussion points
