@@ -367,7 +367,7 @@ between the two keys, a receiver needs to consider:
   \item $n_M$: the number of MACK sections contained in a subframe, as sent in
     the \textrm{NMACK} field in the HKROOT section. This directly relates to the
     number of keys applied in a subframe as one MACK section always contains one
-    key 
+    key
   \item $p$: the relative position of key $K_m$ in the chain starting from the
     first key of the first MACK section of the subframe in which $K_m$ is sent
   \item $NS$: the number of satellites, normally set to 36 as per protocol
@@ -478,12 +478,17 @@ that approximately 1 out of a minimum of ~103680 and 1 out of a maximum of
 keys sent in a day in the case where either 1 or 4 keys are consumed in a
 subframe, calculated by multiplying the number of keys in a subframe by the
 number of satellites and by the number of subframes in a day:
-$\frac{86400}{30}36 \cdot \textrm{NMACK}$}. Since this represents the minimum distance
-that keys will have from the nearest KROOT, we can derive a loose lower bound on
-how long it can take under these circumstances to verify a key against a
-floating KROOT. Applying the same benchmark script as used in the previous
-section, and applying the same performance conversion devised in
-~\ref{eq:mips_conv}, we obtain the numbers in table ~\ref{table:float_kroot}.
+$\frac{86400}{30}36 \cdot \textrm{NMACK}$}.
+
+If we take the assumption that every day the floating KROOT will change, we can
+then consider this result is a similar fashion as done above for the first
+KROOT. In particular, we can consider the number of keys sent in a day as being
+the maximum distance that keys will have from the nearest KROOT, and this in
+turn allows us to derive a loose upper bound on how long it can take under these
+circumstances to verify a key against a floating KROOT. Applying the same
+benchmark script as used in the previous section, and applying the same
+performance conversion devised in ~\ref{eq:mips_conv}, we obtain the numbers in
+table ~\ref{table:float_kroot}.
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule
@@ -494,28 +499,149 @@ section, and applying the same performance conversion devised in
   103680 & 0.1411 & 34.753 \tabularnewline
   414720 & 0.5688 & 140.10 \tabularnewline
 \bottomrule
-  \caption{Lower bounds for authentication of a key against a floating KROOT}
+  \caption{Upper bounds for authentication of a key against a floating KROOT}
 \label{table:float_kroot}
 \end{longtable}
 
 This is a definite improvement over the time it takes to authenticate a key at
-the end of the chain with the root key at its beginning, but given this is a
-lower range (even if loose) it still shows that authenticating a key coming from
-a MACK section against a key authenticated by ground segment and sent in a KROOT
-section is an expensive operation that might undermine the overall performance
-of a receiver.
+the end of the chain with the root key at its beginning, but depending on a
+device capabilities it might still be an expensive operation to perform.
 
 % TODO if you have time
 % Conclusions:
 % - proposal on the frequency of floating KROOT
 % - based on that, proposal on reducing the overall length of the chains and
-%   eliminating the need for floating KROOTs
+%   eliminating the need for floating KROOTs -> maybe not, as keeping the chain
+%   long might allow long-lived receivers to keep authenticating keys in the
+%   chain without the need of receiving new KROOTs
 
 \subsection{Clock synchronization}
+% * prerequisite is that clocks are roughly synchronized: i.e. there is an upper
+% bound to the synchronization error
+% * this is not the case. Explain what could be the status of a newly born
+% receiver
+% * describe a possible attack against unsynchronized clocks
+%   * receiver has clock in the past
+%   * attacker cannot forge another authenticated KROOT, but can reuse previous
+%   keys till the current one to authenticate forged messages
+% * describe possible inclusion of GST in the KROOT section
+% * estimate overhead increase (mainly time to receive the KROOT)
+
+\subsubsection{TESLA security condition in OSNMA}
+
+One of the prerequisites of TESLA is for the clocks of receiver and sender to be
+roughly synchronized. More specifically, TESLA is based on a security condition
+that allows the receiver to identify a packet arrived safely by knowing
+unambiguously that the sender didn't send yet the corresponding key disclosure
+packet. This is because, should the opposite hold true, an attacker could have
+received the key disclosure packet and forged a message using that key; without
+the guarantee specified in the security condition the receiver has no wy to
+identify this kind of attack.
+
+In OSNMA is still necessary to match this condition to guarantee the security of
+the whole algorithm. We'll describe next a possible attack that relies on the
+clock of the receiver being undefinitely out of sync with system time.
+
+\subsubsection{An attack against clock synchronization}
+The scenario is composed of the following actors:
+\begin{itemize}
+  \item a leigitimate Galileo satellite, sending authenticated navigation data
+    following the OSNMA specification. The clock of this sender is perfectly
+    synchronized with system time
+  \item a Galileo receiver with no prior notion of the system: i.e. a
+    receiver with no authenticated root key stored in his local memory, and with an
+    unknown but finite clock drift $\delta_t$
+  \item an attacker capable of receiving Galileo navigation data and transmit a
+    custom signal resembling that of one or more Galileo satellites, and
+    containing ad-hoc forged data.
+\end{itemize}
+
+In this scenario the attacker is free to modify the received data, but is
+limited in the following:
+\begin{itemize}
+  \item it cannot tamper the root key transmitted in the HKROOT section. This is
+    based on the security of the asymmetric scheme used to authenticate the root
+    key
+  \item for the same reason, it cannot tamper the transmission time of mentioned
+    key. The transmission time (in form of the Galileo week number and day of
+    week) is included in the signature and cannot be forged without a receiver
+    being able to identify such forgery
+  \item if it wishes to reuse a key of the chain, it must send it in the right
+    order with respect with the others and with the right time. This is because
+    the transmission time of a key univocally determines its index in the chain,
+    and the transmission time is also authenticated in the MACs sent in the
+    MACK sections. Should the key be sent out of order (i.e. with the wrong
+    time), the receiver wouldn't be able to authenticate it against the root key
+\end{itemize}
+
+Another assumption we make is that the receiver is already sending a forged
+navigation message before the receiver starts to receive on the same frequency
+the attacker is transmitting. The message sent by the attacker contains a forged
+set of ephemeris crafted so that the receiver would derive a set of coordinates
+different than its real ones. This data is authenticated using the OSNMA
+protocol as follows:
+\begin{itemize}
+  \item the attacker receives the legitimate signal at time $t_k$, reading the
+    keys contained in the MACK sections
+  \item the attacker uses the keys it read in the same orders as they were
+    received to authenticate the forged data
+  \item the forged data is transmitted at time $t_k + \delta_f$ with a power
+    sufficient to spoof the legitimate signal
+\end{itemize}
+
+Here $\delta_f$ is a delay that accounts for the fact that a key is necessarily
+read after the corresponding MACs, but the attacker needs to replace the MACs
+\textit{after} having read the key, so the resulting message needs to be delayed
+by a fixed amount of time that allows the attacker to perform the attack and
+build a valid navigation message.
+
+% TODO Diagram
+% t_k                     t_k + \delta_f
+% legitimate: [...data...] [MACs] [key]
+% attacker:                       [key]
+%                                   |
+%                                   v
+%                                 [forged MAC] [key]
+
+Under these conditions we can see what happens on the receiver side:
+\begin{itemize}
+  \item When it wakes up, the receiver immediately starts to acquire and track
+    the forged signal. Since its clock offers no guarantees of synchronization
+    against system time, the receiver is not capable of spotting that the
+    received signal is delayed.
+  \item At first the receiver will decode and authenticate the root key; this
+    operation will succeed since the attacker is just sending a delayed version
+    of the original data.
+  \item Once the root key is authenticated, the receiver starts to receive the
+    navigation message and the respective MACK sections. The receiver at some
+    point will verify that the GST advertised in the subframe corresponds with
+    the time that has been signed by the keys it's receiveing; this operation
+    will also succeed since at this point the receiver has no knowledge of the
+    true system time and the attacker is correctly building the signatures
+    following the protocol.
+  \item The receiver will proceed by authenticating the key it received against
+    the root key. This step will also be successful as no forgery is necessary
+    on the time parameters of the navigation message, and the order of the keys
+    is being preserved by the attacker.
+\end{itemize}
+
+As the example shows without guarantee of synchronicity between the receiver
+and sender's clocks, a spoofing attack can go undetected even in the presence of
+data authentication in case a receiver starts receiving without prior knowledge
+of any system parameter. A possible first step to counteract this is to send
+authenticated time information in the HKROOT section. We'll describe next how
+such countermeasure could be implemented and how it could prevent the forgery
+attempt.
+
+\subsubsection{Preventing forgery attacks}
+Let's change the scenario described above in the following way: let's assume
+that as part of the DSM transmitted in the HKROOT section the time \textit{at
+which the transmission of the section begins} is authenticated. The
+authenticated time corresponds to the GST time advertised in the first subframe
+where the transmission of the HKROOT begins. With this change, the receiver can
+as par
+
 % Discussion points
-% 2 the specs point out the potential use of floating KROOTs. These require the
-%   receiver to know the index of the key being transmitted. The specs don't
-%   seem to specify how that is achieved
 % 3 since the key chain is shared across satellites, to authenticate data for a
 %   satellite a receiver must perform more than one hash calculation. It would
 %   be interesting to analyze:
