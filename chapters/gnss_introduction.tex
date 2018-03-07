@@ -54,9 +54,9 @@ the received data.
 
 \subsection{Space segment}
 The original design of GPS includes 24 satellites, divided in six orbital
-planes positioned approximately 26,600 km from the mass center of Earth. The
-nominal orbital period is one-half of a sidereal day, or 11 hours and 58
-minutes. This design allows for global coverage, meaning that at nominal
+planes positioned approximately \num{26600}\si{km} from the mass center of
+Earth. The nominal orbital period is one-half of a sidereal day, or 11 hours and
+58 minutes. This design allows for global coverage, meaning that at nominal
 constellation operativity a minimum of three satellites is visible at any
 position on Earth's surface.
 
@@ -192,16 +192,38 @@ types of information:
     adjust the PVT equation to account for ionospheric interference
 \end{itemize}
 
-\par
+\vspace{\baselineskip}
 
 Galileo signals are transmitted over four bands within the official RNSS and
 ARNS frequency bands. These four bands are named E1, E5a, E5b and E6. The center
-frequency of these bands ranges from 1176.450 MHz to 1575.420 MHz, while the
-transmitted bandwidth ranges between 20.460 MHz and 51.150 MHz. A full account
-of the frequency allocation and bandwidth distribution is provided in figure XXXX
-and table XXXXX.
+frequency of these bands ranges from \num{1176.450} \si{MHz} to \num{1575.420}
+\si{MHz}, while the transmitted bandwidth ranges between \num{20.460} \si{MHz}
+and \num{51.150} \si{MHz}. A full account of the frequency allocation and
+bandwidth distribution is provided in figure ~\ref{fig:galileo_frequencies} and
+table ~\ref{table:galileo_signals}.
 
 % TODO Add figure 2 and table 1 of Galileo SIS ICD
+
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{figures/galileo_signal_plan.png}
+  \caption{Galileo and GPS frequency spectrum}
+  \label{fig:galileo_frequencies}
+\end{figure}
+
+\begin{longtable}[]{@{}ll@{}}
+  \toprule
+  Signal & Carrier Frequency (MHz)\tabularnewline
+  \midrule
+  \endhead
+  E1 & 1575.420\tabularnewline
+  E6 & 1278.750\tabularnewline
+  E5 & 1191.795\tabularnewline
+  E5a & 1176.450\tabularnewline
+  E5b & 1207.140\tabularnewline
+  \bottomrule
+  \caption{Galileo signal plan}
+  \label{table:galileo_signals}
+\end{longtable}
 
 All Galileo signals are RHCP, and independently from the modulation are composed
 of in-phase and quadrature components. In-phase components carry the navigation
@@ -242,7 +264,7 @@ Control Segment and Ground Mission Segment.
 The Space Segment, as defined in the reference constellation, is composed of 24
 operative satellites distributed in 3 circular orbits with a radius of 29,600 km
 and an orbital period of approximately 14h. At the time of writing, information
-on the actual Galileo constellation can be found in XXXXXX.
+on the actual Galileo constellation can be found in \cite{galileo_constellation}.
 
 Galileo's satellites are currently divided in four families: Giove-A and Giove-B
 are the initial prototypes and have been used for the initial testing phase;
@@ -297,18 +319,19 @@ replenish the constellation. In 2001, restoration of the degraded constellation
 was made a top government priority; since 2011 GLONASS is again fully
 operational with global availability.
 
-\par
+\vspace{\baselineskip}
 
 GLONASS constellation consists of 24 satellites, 21 of which fully operative and
-3 acting as spares. The satellites are organized in 3 orbital planes 120° apart
-from each other in right ascension with a period of 11 hours and 15 minutes.
+3 acting as spares. The satellites are organized in 3 orbital planes \ang{120}
+apart from each other in right ascension with a period of 11 hours and 15
+minutes.
 
 Such configuration provides continuous visibility of no less than 4 satellites
 to over 97\% of Earth's surface. A full 24 satellite configuration would instead
 provide continuous visibility of no less than 5 satellites to more than 99\% of
 the Earth's surface.
 
-\par
+\vspace{\baselineskip}
 
 Differently than other systems, GLONASS historically used FDMA as a multiplexing
 technique, which increases complexity on the receiver side but allows for better
@@ -368,11 +391,11 @@ Earth orbits.
 BeiDou-2 will transmit on 5 bands: E1, E2, E5B and E6. The system will transmit
 two types of signal: a free service for civilian use and a restricted one for
 military and government use. The free service is claimed to have location
-accuracy of 10 m, time accuracy of 10 ns and velocity accuracy of 0.2 m/s. The
-military service instead will have a location accuracy of 0.1 m. The modulation
-of these signals uses CDMA techniques similar to that of Galileo; the chipping
-rate and the data rate are also comparable if not identical to that of Galileo
-OS.
+accuracy of \num{10}\si{m}, time accuracy of \num{10}\si{ns} and velocity
+accuracy of \num{0.2}\si{m/s}. The military service instead will have a location
+accuracy of \num{0.1}\si{m}. The modulation of these signals uses CDMA
+techniques similar to that of Galileo; the chipping rate and the data rate are
+also comparable if not identical to that of Galileo OS.
 
 Although little is known about the actual structure of the system and the
 service levels to be offered, it's clear that the Chinese government is aiming
@@ -405,7 +428,7 @@ In the same committee, a contextual definition of the two terms was provided:
     radiofrequency compatibility.
 \end{itemize}
 
-\par
+\vspace{\baselineskip}
 
 This formal agreement resulted in a number of significant decision in the
 evolution of the design of all major GNSS.

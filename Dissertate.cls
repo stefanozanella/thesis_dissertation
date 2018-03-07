@@ -84,6 +84,7 @@
 \RequirePackage{gensymb}
 \RequirePackage{longtable}
 \RequirePackage{listings}
+\RequirePackage{siunitx}
 %\setmathsfont(Digits,Latin,Greek)[Numbers={Proportional}]{EB Garamond}
 %\setmathrm{EB Garamond}
 \AtBeginEnvironment{tabular}{\addfontfeature{RawFeature=+tnum}}

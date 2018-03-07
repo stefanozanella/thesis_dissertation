@@ -5,7 +5,7 @@ reformulate it from a receiver point of view. The goal is to identify key areas
 of possible improvement for the protocol, together with critical aspects for a
 receiver implementation, and to provide suggestions for both.
 
-\par
+\vspace{\baselineskip}
 
 When thinking about a Galileo receiver capable of supporting OSNMA, we can
 identify two distinct modes of operations: a bootstrap phase and a nominal one.
@@ -34,7 +34,7 @@ acquisition phase for a sufficient number of in-view satellites, and to
 successfully move into the tracking phase which will allow it to decode the
 Galileo navigation data frame.
 
-\par
+\vspace{\baselineskip}
 
 Under these conditions, when the receiver starts its operations it has no
 knowledge about the key chain currently in force, and therefore if it wants to
@@ -177,7 +177,7 @@ embedded code, we've compared its performances with a C implementation of the
 same logic. The two programs both measure the time it takes to perform $2^{20}$
 computations of a SHA256 chain.
 
-\par
+\vspace{\baselineskip}
 
 The first test measures how much time it takes to compute the whole chain of
 keys, for different lengths of the chain. Tested lengths vary between $2^{20}$
@@ -548,9 +548,8 @@ The scenario is composed of the following actors:
   \item a leigitimate Galileo satellite, sending authenticated navigation data
     following the OSNMA specification. The clock of this sender is perfectly
     synchronized with system time
-  \item a Galileo receiver with no prior notion of the system: i.e. a
-    receiver with no authenticated root key stored in his local memory, and with an
-    unknown but finite clock drift $\delta_t$
+  \item a Galileo receiver with no with an unknown but finite clock drift
+    $\delta_t$
   \item an attacker capable of receiving Galileo navigation data and transmit a
     custom signal resembling that of one or more Galileo satellites, and
     containing ad-hoc forged data.
@@ -626,20 +625,114 @@ Under these conditions we can see what happens on the receiver side:
 \end{itemize}
 
 As the example shows without guarantee of synchronicity between the receiver
-and sender's clocks, a spoofing attack can go undetected even in the presence of
-data authentication in case a receiver starts receiving without prior knowledge
-of any system parameter. A possible first step to counteract this is to send
-authenticated time information in the HKROOT section. We'll describe next how
-such countermeasure could be implemented and how it could prevent the forgery
-attempt.
+and sender's clocks, and without an upper bound on the drift between the two, a
+spoofing attack can go undetected even in the presence of data authentication in
+case a receiver starts receiving without prior knowledge of any system
+parameter. We'll describe next how this risk could be mitigated.
 
 \subsubsection{Preventing forgery attacks}
-Let's change the scenario described above in the following way: let's assume
-that as part of the DSM transmitted in the HKROOT section the time \textit{at
-which the transmission of the section begins} is authenticated. The
-authenticated time corresponds to the GST time advertised in the first subframe
-where the transmission of the HKROOT begins. With this change, the receiver can
-as par
+The problem just described is addressed in \cite{perrig} as a prerequisite to
+the algorithm: i.e. TESLA doesn't provide any mechanism to synchronize
+the clocks beforehand, but rather demands that an upper bound on the drift is
+known. The problem with real hardware is that Galileo needs to support a wide
+range of receivers, some of which sport clocks with poor performances. Moreover,
+no assumption can be made on the operating mode of the receiver: for example,
+a receiver could stay offline and accumulate drift for indefinite amounts of
+time. From this standpoint, we identify three approaches that can help make sure
+the security conditions are met, all of which we'll describe next: either we
+support Galileo operations with external clock sources, we require hardware with
+a certain level of guaranteed performance, or we provide guidelines for
+receivers to maintain the clock drift under a specific threshold.
+
+\vspace{\baselineskip}
+
+An example of the first case is to use a network protocol such as NTP to perform
+an initial time synchronization before starting to receive and authenticate
+Galileo data. This is an approach that can suit some receivers, but for some use
+cases it's not viable. If we consider for example a receiver mounted on a boat
+to provide assistance to deep sea navigation, requiring Internet connectivity in
+such an environment might be too hard a constraint.
+
+In the second case, we could require receivers that wish to authenticate data to
+have on-board clocks with a precision similar to that of the clocks mounted on
+the space vehicles; this way we're guaranteed by the performance match that the
+drift will stay within constant bounds. While development of high precision,
+integrated atomic clocks in under way, their cost is still prohibitive for the
+mass market.
+
+The third approach instead puts control in the hand of the receiver and could
+therefore suit a broader set of receivers than the other two approaches. The
+main idea is that ultimately what's important is to keep a receiver's clock
+drift under control, and this can be achieved by using Galileo itself (or any
+other GNSS for that matter) provided certain receiver parameters are known. We
+can illustrate the idea with a general framework, and then analyze in more
+detail some specific configurations that might suit the case of OSNMA.
+
+\vspace{\baselineskip}
+
+Let's assume a receiver using a clock with a known drift of $d$ \si{ppm}. Let's
+also assume the receiver starts its life with the clock perfectly synchronized
+with GST. We know that TESLA requires sender and receiver not to drift apart
+more than an upper bound $\delta_{max}$ \si{s}. We can therefore derive after how much
+time the threshold will be reached with:
+\begin{equation}
+  t_{th} = \frac{\delta_{max}}{86400 \cdot d}
+\end{equation}
+This number gives a lower bound on how often the receiver needs to synchronize
+itself against GST. If the receiver adjusts its time \textit{at least} every
+$t_{th}$ \si{s}, then the security condition can be met and the receiver is
+assured that data can either be authenticated correctly, or a spoofing attack
+can be identified.
+
+Starting from this result, we can then derive a value of the disclosure lag
+$\delta_{max}$ that would guarantee security in OSNMA. As a reminder, this value
+is chosen so that receivers have a guarantee that whenever they receive a MAC
+the corresponding key hasn't been disclosed yet. According to this definition,
+in OSNMA the disclosure lag can have different values: in standard conditions,
+the key is sent just after the corresponding set of MACs it generated, so the
+disclosure lag is just the time it takes to transmit a key. The specification
+also mentions the possibility of using SLMAC (shorthand for "slow MAC"), in
+which the key is disclosed at some subframes of distance from the MAC. We'll
+analyze this case later as it builds upon the standard case.
+
+\vspace{\baselineskip}
+
+According to the OSNMA specifications, the length of a key ranges between 80 and
+256 bits. The I/NAV navigation message to which OSNMA applies is
+transmitted at a nominal rate of \num{50}\si{bps}, but the MACK section
+occupies only 32 bit of a nominal \num{2}\si{s} page, making it's effective
+transmission rate equal to \num{6.67}\si{bps}\footnote{A \num{2}\si{s} page is
+240 bits long, out of which only 32 are reserved for the MAC section. At
+\num{50}\si{bps} the MACK section is sent at $\frac{32}{240} \cdot 50$ bps}. Therefore
+the time it takes to transmit a whole key is between \num{11.99}\si{s} and
+\num{38.40}\si{s}.
+
+From this result we can try to understand how fast a clock can achieve the
+maximum drift depending on its accuracy. Since there's no standard we can take
+some sample values to see how they affect the security condition. A normal value
+for clock accuracy for embedded devices is in the order of \num{10}\si{ppm}; we
+consider along that two higher precision marks to understand how higher quality
+clocks could improve the receiver operation.
+
+\begin{longtable}[]{@{}lll@{}}
+  \toprule
+  Clock precision [ppm] & Time to max drift [d] (\num{80}\si{bit} key) &
+  Time to max drift [d] (\num{256}\si{bit} key)\tabularnewline
+  \midrule
+  \endhead
+  10 & 13.87 & 44.44 \tabularnewline
+  1 & 138.7 & 444.4 \tabularnewline
+  0.01 & 1387 & 4444 \tabularnewline
+  \bottomrule
+  \caption{Days to reach maximum thresholds with different clock drift rates}
+  \label{table:drifts}
+\end{longtable}
+
+We can see that, for example, a clock with a standard precision in the order of
+\num{10}\si{ppm} would reach the maximum allowed clock drift in less than two
+weeks in case of keys that are \num{80}\si{bit} long, and in around 45 days in
+case of keys
+
 
 % Discussion points
 % 3 since the key chain is shared across satellites, to authenticate data for a
