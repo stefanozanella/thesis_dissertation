@@ -687,25 +687,35 @@ can be identified.
 Starting from this result, we can then derive a value of the disclosure lag
 $\delta_{max}$ that would guarantee security in OSNMA. As a reminder, this value
 is chosen so that receivers have a guarantee that whenever they receive a MAC
-the corresponding key hasn't been disclosed yet. According to this definition,
-in OSNMA the disclosure lag can have different values: in standard conditions,
-the key is sent just after the corresponding set of MACs it generated, so the
-disclosure lag is just the time it takes to transmit a key. The specification
-also mentions the possibility of using SLMAC (shorthand for "slow MAC"), in
-which the key is disclosed at some subframes of distance from the MAC. We'll
-analyze this case later as it builds upon the standard case.
+the corresponding key hasn't been disclosed yet. This definition doesn't define
+precisely the time boundaries of such a lag. The beginning of the disclosure lag
+can be computed starting from the beginning of transmission of either the whole
+MACK section, or just the key. The end of the disclosure lag can be marked
+unambiguously at the time when the transmission of the MACK section ends. To
+resolve the ambiguity, we will calculate the lag for the shortest amount of time
+(i.e. the time it takes to transmit a key rather than the time it takes to
+transmit the whole section); this represents the worst case as shorter
+disclosure lags mean more stringent synchronicity requirements, so we can
+consider the other case a relaxation of this analysis.
+
+According to this definition, the disclosure lag is equivalent to the time it
+takes to transmit a key. Additionally, in OSNMA the disclosure lag can take
+different values for a fixed key size: in standard conditions, the key is sent
+just after the corresponding set of MACs it generated, so the disclosure lag is
+just the time it takes to transmit a key. The specification also mentions the
+possibility of using SLMAC (shorthand for "slow MAC"), in which the key is
+disclosed at some subframes of distance from the MAC. We'll analyze this case
+later as it builds upon the standard case.
 
 \vspace{\baselineskip}
 
 According to the OSNMA specifications, the length of a key ranges between 80 and
 256 bits. The I/NAV navigation message to which OSNMA applies is
-transmitted at a nominal rate of \num{50}\si{bps}, but the MACK section
-occupies only 32 bit of a nominal \num{2}\si{s} page, making it's effective
-transmission rate equal to \num{6.67}\si{bps}\footnote{A \num{2}\si{s} page is
-240 bits long, out of which only 32 are reserved for the MAC section. At
-\num{50}\si{bps} the MACK section is sent at $\frac{32}{240} \cdot 50$ bps}. Therefore
-the time it takes to transmit a whole key is between \num{11.99}\si{s} and
-\num{38.40}\si{s}.
+transmitted at a nominal rate of \num{120}\si{bps}, but the MACK section
+occupies only \num{32}\si{bit} of a nominal \num{2}\si{s} page, making its effective
+transmission rate equal to \num{16}\si{bps}. Therefore
+the time it takes to transmit a whole key is between \num{5}\si{s} and
+\num{16}\si{s}.
 
 From this result we can try to understand how fast a clock can achieve the
 maximum drift depending on its accuracy. Since there's no standard we can take
@@ -720,24 +730,24 @@ clocks could improve the receiver operation.
   Time to max drift [d] (\num{256}\si{bit} key)\tabularnewline
   \midrule
   \endhead
-  10 & 13.87 & 44.44 \tabularnewline
-  1 & 138.7 & 444.4 \tabularnewline
-  0.01 & 1387 & 4444 \tabularnewline
+  \num{10} & \num{5.787} & \num{18.52} \tabularnewline
+  \num{1} & \num{57.87} & \num{185.2} \tabularnewline
+  \num{0.01} & \num{578.7} & \num{1852} \tabularnewline
   \bottomrule
   \caption{Days to reach maximum thresholds with different clock drift rates}
   \label{table:drifts}
 \end{longtable}
 
 We can see that, for example, a clock with a standard precision in the order of
-\num{10}\si{ppm} would reach the maximum allowed clock drift in less than two
-weeks in case of keys that are \num{80}\si{bit} long, and in around 45 days in
-case of keys that are \num{256}\si{bit} long. This can also be seen as the
-maximum amount of time a receiver can stay disconnected from the Galileo
-network before the clock drift prevents it to safely authenticate the data it
-receives. The solution for a receiver is then to be designed around this
-security requirement so that it keeps track of the time elapsed since last clock
-synchronization and, depending on the nominal precision of its clock, makes sure
-that it periodically checks its drift from system time.
+\num{10}\si{ppm} would reach the maximum allowed clock drift in less than a
+week in case of keys that are \num{80}\si{bit} long, and in a little less than 3
+weeks in case of keys that are \num{256}\si{bit} long. This can also be seen as
+the maximum amount of time a receiver can stay offline before the clock drift
+prevents it to safely authenticate the data it receives. The solution for a
+receiver is then to be designed around this security requirement so that it
+keeps track of the time elapsed since last clock synchronization and, depending
+on the nominal precision of its clock, makes sure that it checks its drift from
+system time with a period shorter than the upper bound just mentioned.
 
 \vspace{\baselineskip}
 
@@ -746,7 +756,7 @@ some keys sent with some delay with respect to the MAC they generated. This
 concept is named SLMAC in the specification, and it's supported on a single set
 of data with two possible delays: one or ten subframes. This amount to an
 additional delay of \num{30}\si{s} to \num{300}\si{s}. Theoretically, these
-disclosure lags would allow for the delays reported in ~\ref{table:drifts2}.
+disclosure lags would allow for the delays reported in Table~\ref{table:drifts2}.
 
 \begin{longtable}[]{@{}llll@{}}
   \toprule
@@ -754,17 +764,31 @@ disclosure lags would allow for the delays reported in ~\ref{table:drifts2}.
   & \num{10} & \num{1} & \num{0.01} \tabularnewline
   \midrule
   \endhead
-  \num{80}\si{bit} key, \num{30}\si{s} delay & 47.45 & 474.5 & 4745 \tabularnewline
-  \num{256}\si{bit} key, \num{30}\si{s} delay & 79.17 & 791.7 & 7917 \tabularnewline
-  \num{80}\si{bit} key, \num{300}\si{s} delay & 361.1 & 3611 & 3.611e4 \tabularnewline
-  \num{256}\si{bit} key, \num{300}\si{s} delay & 391.7 & 3917 & 3.917e4 \tabularnewline
+  \num{80}\si{bit} key, \num{30}\si{s} delay & \num{40.50} & \num{405.0} &
+  \num{4050} \tabularnewline
+  \num{256}\si{bit} key, \num{30}\si{s} delay & \num{53.24} & \num{532.4} &
+  \num{5324} \tabularnewline
+  \num{80}\si{bit} key, \num{300}\si{s} delay & \num{353.0} & \num{3530} &
+  \num{3.530e4} \tabularnewline
+  \num{256}\si{bit} key, \num{300}\si{s} delay & \num{365.7} & \num{3657} &
+  \num{3.657e4} \tabularnewline
   \bottomrule
   \caption{Days to reach maximum thresholds to guarantee security of SLMACs}
   \label{table:drifts2}
 \end{longtable}
 
 As we can see, with a disclosure lag of five minutes we can allow receivers with
-relatively low accuracy clocks to remain out of sync for around a year.
+relatively low accuracy clocks to remain out of sync for around a year no matter
+the size of the key.
+
+\section{Receiver operations}
+In this section we'll describe a possible state machine for a receiver that
+supports OSNMA. We make the assumption that the receiver CPU is single core and
+single threaded. That is, we'll describe a purely sequential and synchronous
+state machine that doesn't involve any form of concurrency. The input of this
+state machine is the decoded navigation message. In other words, we are not
+concerned here about the operations of the receiver's frontend, but just of
+those of the data processor.
 
 % Discussion points
 % - how would keys for SLMAC fit into the stream of MACK sections?
