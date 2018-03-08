@@ -731,10 +731,43 @@ clocks could improve the receiver operation.
 We can see that, for example, a clock with a standard precision in the order of
 \num{10}\si{ppm} would reach the maximum allowed clock drift in less than two
 weeks in case of keys that are \num{80}\si{bit} long, and in around 45 days in
-case of keys
+case of keys that are \num{256}\si{bit} long. This can also be seen as the
+maximum amount of time a receiver can stay disconnected from the Galileo
+network before the clock drift prevents it to safely authenticate the data it
+receives. The solution for a receiver is then to be designed around this
+security requirement so that it keeps track of the time elapsed since last clock
+synchronization and, depending on the nominal precision of its clock, makes sure
+that it periodically checks its drift from system time.
 
+\vspace{\baselineskip}
+
+As stated before, the OSNMA specification describes the possibility of having
+some keys sent with some delay with respect to the MAC they generated. This
+concept is named SLMAC in the specification, and it's supported on a single set
+of data with two possible delays: one or ten subframes. This amount to an
+additional delay of \num{30}\si{s} to \num{300}\si{s}. Theoretically, these
+disclosure lags would allow for the delays reported in ~\ref{table:drifts2}.
+
+\begin{longtable}[]{@{}llll@{}}
+  \toprule
+  & \multicolumn{3}{c}{Clock precision [ppm]} \tabularnewline
+  & \num{10} & \num{1} & \num{0.01} \tabularnewline
+  \midrule
+  \endhead
+  \num{80}\si{bit} key, \num{30}\si{s} delay & 47.45 & 474.5 & 4745 \tabularnewline
+  \num{256}\si{bit} key, \num{30}\si{s} delay & 79.17 & 791.7 & 7917 \tabularnewline
+  \num{80}\si{bit} key, \num{300}\si{s} delay & 361.1 & 3611 & 3.611e4 \tabularnewline
+  \num{256}\si{bit} key, \num{300}\si{s} delay & 391.7 & 3917 & 3.917e4 \tabularnewline
+  \bottomrule
+  \caption{Days to reach maximum thresholds to guarantee security of SLMACs}
+  \label{table:drifts2}
+\end{longtable}
+
+As we can see, with a disclosure lag of five minutes we can allow receivers with
+relatively low accuracy clocks to remain out of sync for around a year.
 
 % Discussion points
+% - how would keys for SLMAC fit into the stream of MACK sections?
 % 3 since the key chain is shared across satellites, to authenticate data for a
 %   satellite a receiver must perform more than one hash calculation. It would
 %   be interesting to analyze:
