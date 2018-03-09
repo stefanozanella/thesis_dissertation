@@ -787,11 +787,12 @@ supports OSNMA. We make the assumption that the receiver CPU is single core and
 single threaded. That is, we'll describe a purely sequential and synchronous
 state machine that doesn't involve any form of concurrency. The input of this
 state machine is the decoded navigation message. In other words, we are not
-concerned here about the operations of the receiver's frontend, but just of
-those of the data processor.
+concerned here about the operations of the receiver's radio frontend, but just
+of those of the data processor, and specifically we're interested in
+understanding how the authentication operations affect the complexity of a
+receiver's firmware.
 
 % Discussion points
-% - how would keys for SLMAC fit into the stream of MACK sections?
 % 3 since the key chain is shared across satellites, to authenticate data for a
 %   satellite a receiver must perform more than one hash calculation. It would
 %   be interesting to analyze:
