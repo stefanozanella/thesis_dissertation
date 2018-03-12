@@ -186,7 +186,11 @@ the middle of the range. The computation is done against a fixed key of $80$
 bits of length, and the same test has been performed for all the hash functions
 supported by the protocol.
 
-% TODO Graph here
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{figures/chain_speed.eps}
+  \caption{Chaing length vs computation time of the whole chain}
+  \label{fig:bm1}
+\end{figure}
 
 The results of this first benchmark can be seen in figure~\ref{fig:bm1}. The values
 that make up the graph can be seen in table~\ref{table:bm1}. It's important to
@@ -341,6 +345,12 @@ key size reaches around 180 bits, but in the case of the other functions the
 computation time remains constant. This leads to the conclusion that computation
 time is bound only by the length of the chain, and all other parameters don't
 affect the receiver in a significant way.
+
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{figures/key_length.eps}
+  \caption{Key length vs computation time of the supported hash functions}
+  \label{fig:key_length}
+\end{figure}
 
 \subsection{Floating KROOTs}
 As part of the protocol specification described in \cite{osnma}, a mention
@@ -507,7 +517,7 @@ This is a definite improvement over the time it takes to authenticate a key at
 the end of the chain with the root key at its beginning, but depending on a
 device capabilities it might still be an expensive operation to perform.
 
-% TODO if you have time
+% MAYBE if you have time
 % Conclusions:
 % - proposal on the frequency of floating KROOT
 % - based on that, proposal on reducing the overall length of the chains and
@@ -594,13 +604,11 @@ read after the corresponding MACs, but the attacker needs to replace the MACs
 by a fixed amount of time that allows the attacker to perform the attack and
 build a valid navigation message.
 
-% TODO Diagram
-% t_k                     t_k + \delta_f
-% legitimate: [...data...] [MACs] [key]
-% attacker:                       [key]
-%                                   |
-%                                   v
-%                                 [forged MAC] [key]
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{figures/delay_attack.png}
+  \caption{Possible forging attack that relies on lack of clock synchronization}
+  \label{fig:delay_attack}
+\end{figure}
 
 Under these conditions we can see what happens on the receiver side:
 \begin{itemize}
@@ -802,9 +810,6 @@ can proceed to receive and authenticate the navigation message, and to solve the
 PVT equations with the authenticated data. If not, the receiver must enter a
 bootstrap phase where the conditions described above are met.
 
-% TODO graph with security conditions verification -> authentication bootstrap
-% and -> navigate
-
 \subsection{Authentication bootstrap}
 As part of this phase, the receiver needs to bring itself to meet two
 conditions, or fail if that's not possible: a root key is present, and the clock
@@ -853,7 +858,11 @@ possible is as follows:
     \end{itemize}
 \end{itemize}
 
-% TODO Flow diagram here too with the steps just described
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{figures/flowchart_bootstrap.png}
+  \caption{Decision tree for OSNMA authentication bootstrap}
+  \label{fig:flowchart_boostrap}
+\end{figure}
 
 \subsection{SLMAC clock synchronization}
 If the offline period has been too long to guarantee that the security condition
@@ -906,8 +915,6 @@ it should initiate the clock synchronization procedure as follows:
     should either abort its operations or proceed to the navigation state with
     disabled authentication. In either case the end user should be notified.
 \end{itemize}
-
-% TODO Diagram here with clock sync decision flow
 
 \subsection{Authenticated navigation phase}
 

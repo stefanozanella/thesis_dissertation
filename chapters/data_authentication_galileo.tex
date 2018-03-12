@@ -120,7 +120,13 @@ per page (2s) in the field called "Reserved 1" in the Galileo ICD
 \cite{galileoicd}. The HKROOT section occupies 8 of those bits, while the
 remaining 32 are allocated for the MACK section.
 
-% TODO Add piece of Figure 2 from OSNMA specs
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/osnma_fields.png}
+  \end{center}
+  \caption{OSNMA message structure in Galileo E1B I/NAV frame}
+  \label{fig:osnma_fields}
+\end{figure}
 
 In total, a HKROOT section has a variable length and it's transmitted in blocks
 of 104 bits - one block per subframe. The MACK section instead has a fixed
@@ -140,7 +146,11 @@ the hash function to be used and the key size, together with the DSM and the
 associated key. The DSM-KROOT can be optionally be swapped with the DSM-PKR
 section for key revocation.
 
-% TODO Add Table 6 from OSNMA specs
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{figures/dsm_kroot.png}
+  \caption{Fields in DSM-KROOT section. "v" in the bit size stands for "variable"}
+  \label{fig:dsm_kroot}
+\end{figure}
 
 The MACK section instead contains the authentication codes for the data
 transmitted in the navigation message. This data is authenticated with different
@@ -153,7 +163,11 @@ indicating if the data transmitted is new are sent.
 After the MACs, the key that generated them follows, the size of which is
 specified in the DSM.
 
-% TODO Add Figure 4 from OSNMA
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{figures/mack.png}
+  \caption{MACK section structure}
+  \label{fig:dsm_kroot}
+\end{figure}
 
 The pieces of information included in OSNMA are to be used by the receiver as
 follows:
