@@ -917,6 +917,99 @@ it should initiate the clock synchronization procedure as follows:
 \end{itemize}
 
 \subsection{Authenticated navigation phase}
+If the receiver has made sure of complying with the security condition of TESLA
+it can enter the navigation phase. The goal of this phase is to solve the PVT
+equation using authenticated data received from satellites. For this to be
+accomplished the navigation message needs to be received from a number of
+in-view satellites, together with their authentication codes and the keys that
+generated them. Given the nature of how data is transmitted, two aspects need to
+be considered. First, an efficient way to store and access the data just
+mentioned that accounts for piece-wise reception of information. Second, a state
+machine to process the received data and handle error cases.
+
+\vspace{\baselineskip}
+
+To understand the problem of storing the data related to the navigation message
+and its authentication, it's useful to analyze the lifecycle of these two
+components. Starting from how OSNMA groups data for individual authentication,
+we distinguish three main categories: ephemeris data, almanac data and
+Galileo-GPS conversion parameters. In a 30s cycle, the navigation message
+includes all the ephemeris for the transmitting satellite, the conversion
+parameters and almanac data for one and a half satellites out of 36. In the same
+time frame, depending on the configuration, 1 to 15 MACs can be transmitted.
+This means that in some cases we could receive data in a subframe and its
+authentication in a subsequent subframe, or the other way around. In any case
+this means that the receiver needs to have a local cache that captures the
+following:
+\begin{itemize}
+  \item authentication parameters contained in the HKROOT header section
+  \item individual navigation message fields
+  \item authentication codes, their associated time and position within a
+    subframe
+  \item keys associated to the authentication codes
+  \item status of the validity of a key
+  \item status of the verification of an authentication code
+\end{itemize}
+The navigation message fields amount at least to:
+\begin{itemize}
+  \item ephemeris for 36 satellites
+  \item almanac for 36 satellites
+  \item remaining bits of a subframe that are not captured by other fields
+\end{itemize}
+In case the receiver is capable of receiving GPS signals and wishes to
+authenticate them, then the storage requirement includes also the authentication
+codes relative to the GPS navigation message, for all the possible 35 satellites
+Galileo can authenticate.
+
+One important aspect to consider that might affect the efficiency of the storage
+mechanism is the fact that one authentication code applies in general to more
+than one field. To avoid duplicating the authentication codes for each field, a
+pointers-based structure might be implemented, in which for each field just a
+pointer to the data structure storing the actual MAC and contextual timing and
+position information.
+
+Another important tradeoff that must be considered when designing a receiver is
+related to the fact that Galileo can authenticate also a whole full subframe;
+here the two opposing forces are memory and complexity. On one side, one could
+allow for a complete copy of the subframe to be stored independently from the
+other fields. The second approach is to collect the bits that compose the
+subframe and that are not included in the other stored fields, and have the CPU
+recompute the subframe structure prior to authentication. This last approach has
+the advantage of saving memory, but requires some computation on the processor
+side before the subframe could be authenticated. The first approach instead
+removes the need of CPU cycles at the expense of more memory used and some
+duplicated data. On the other hand, this approach also allows the receiver to
+store ephemeris and almanac data independently from the data received in the
+last subframe (e.g. the receiver might keep a verified version of the individual
+fields for use in the PVT solution, and at the same time authenticate the last
+subframe with the option of discarding it in case authentication fails without
+losing already verified data).
+
+\vspace{\baselineskip}
+
+Once the data structure is defined, it's useful to discuss how the receiver
+should fill the actual data in. In general it's important to realize that some
+of the data presented above needs to be computed by the receiver, which needs
+make sure enough CPU cylces are scheduled at the right time, without running
+into the risk of blocking other operations. From this point 
+
+
+% - MAC
+%   - CTR
+%   - GST_SF
+%   - PRN satellite giving authentication information
+% - NMA status header
+% - key
+% 
+% Consider only 30sec cycles
+
+% TODO IODnav -> how to verify if data needs authentication
+
+% - MACs can be received at different times than the navigation message: how to
+%   store them so that space is not wasted (i.e. should we store a MAC for a
+%   satellite that might not be in view)?
+% - a MAC can authenticate more than one field: how to efficiently store the MAC
+%   and have the right fields be marked as authenticated?
 
 % Memory table with ephemeris for each SV + general almanac information
 % flag for each piece of data that identifies if the data is authenticated or not
