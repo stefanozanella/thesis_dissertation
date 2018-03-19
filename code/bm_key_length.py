@@ -11,7 +11,7 @@ for key_length in key_lengths:
         key = str(random.getrandbits(key_length)).encode('utf-8')
         start = time.time()
         for _ in range(2**20):
-            hashlib.sha3_256(key).hexdigest()
+            hashlib.sha3_224(key).hexdigest()
         end = time.time()
         total += end - start
     print(key_length, total/iterations)

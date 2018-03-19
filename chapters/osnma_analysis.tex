@@ -843,7 +843,7 @@ possible is as follows:
   \item at this point clock drift should be checked. Based on nominal clock
     precision, key size as defined in the \textrm{KS} field of the NMA header,
     and Equation~\ref{eq:drift_threshold} the receiver should estimate for how
-    long it could stay safely offline. 
+    long it could stay safely offline.
     \begin{itemize}
       \item if the difference between current time and the last time it
         connected to Galileo (which should have been stored) is below the
@@ -887,7 +887,7 @@ it should initiate the clock synchronization procedure as follows:
   \item first, it should keep reading subframes until a MAC with an ADKD value
     of 11 or 12 is transmitted (depending on the key delayed identified:
     \textrm{ADKD=11} for \num{30}\si{s} delay, \textrm{ADKD=12} for
-    \num{300}\si{s}) 
+    \num{300}\si{s})
   \item while reading subframes, the receiver should keep track of the GST
     values read in WT2 (GST WN and GST TOW as described in \cite{galileoicd}).
     Together with this, the receiver should mark the time at which the GST was
@@ -931,15 +931,15 @@ machine to process the received data and handle error cases.
 
 To understand the problem of storing the data related to the navigation message
 and its authentication, it's useful to analyze the lifecycle of these two
-components. Starting from how OSNMA groups data for individual authentication,
-we distinguish three main categories: ephemeris data, almanac data and
-Galileo-GPS conversion parameters. In a 30s cycle, the navigation message
+components. Starting from how OSNMA groups data to be authenticated with a
+single MAC, we distinguish three main categories: ephemeris data, almanac data
+and Galileo-GPS conversion parameters. In a 30s cycle, the navigation message
 includes all the ephemeris for the transmitting satellite, the conversion
-parameters and almanac data for one and a half satellites out of 36. In the same
-time frame, depending on the configuration, 1 to 15 MACs can be transmitted.
-This means that in some cases we could receive data in a subframe and its
-authentication in a subsequent subframe, or the other way around. In any case
-this means that the receiver needs to have a local cache that captures the
+parameters, and almanac data for one and a half satellites out of 36. In the
+same time frame, depending on the configuration, 1 to 15 MACs can be
+transmitted.  This means that in some cases we could receive data in a subframe
+and its authentication in a subsequent subframe, or the other way around. In any
+case this means that the receiver needs to have a local cache that captures the
 following:
 \begin{itemize}
   \item authentication parameters contained in the HKROOT header section
@@ -958,28 +958,28 @@ The navigation message fields amount at least to:
 \end{itemize}
 In case the receiver is capable of receiving GPS signals and wishes to
 authenticate them, then the storage requirement includes also the authentication
-codes relative to the GPS navigation message, for all the possible 35 satellites
-Galileo can authenticate.
+codes relative to the GPS navigation message, for all the possible 35 GPS
+satellites Galileo can authenticate.
 
 One important aspect to consider that might affect the efficiency of the storage
 mechanism is the fact that one authentication code applies in general to more
 than one field. To avoid duplicating the authentication codes for each field, a
 pointers-based structure might be implemented, in which for each field just a
 pointer to the data structure storing the actual MAC and contextual timing and
-position information.
+position information is stored.
 
-Another important tradeoff that must be considered when designing a receiver is
-related to the fact that Galileo can authenticate also a whole full subframe;
-here the two opposing forces are memory and complexity. On one side, one could
-allow for a complete copy of the subframe to be stored independently from the
-other fields. The second approach is to collect the bits that compose the
-subframe and that are not included in the other stored fields, and have the CPU
-recompute the subframe structure prior to authentication. This last approach has
-the advantage of saving memory, but requires some computation on the processor
-side before the subframe could be authenticated. The first approach instead
-removes the need of CPU cycles at the expense of more memory used and some
-duplicated data. On the other hand, this approach also allows the receiver to
-store ephemeris and almanac data independently from the data received in the
+Another important tradeoff that must be considered when designing the storage of
+the receiver is related to the fact that Galileo can authenticate also a whole
+full subframe; here the two opposing forces are memory and complexity. On one
+side, one could allow for a complete copy of the subframe to be stored
+independently from the other fields. The second approach is to collect the bits
+of the subframe that are not included in the other stored fields, and have the
+CPU recompute the subframe structure prior to authentication. This last approach
+has the advantage of saving memory, but requires some computation on the
+processor side before the subframe could be authenticated. The first approach
+instead removes the need of CPU cycles at the expense of more memory used and
+some duplicated data. On the other hand, this approach also allows the receiver
+to store ephemeris and almanac data independently from the data received in the
 last subframe (e.g. the receiver might keep a verified version of the individual
 fields for use in the PVT solution, and at the same time authenticate the last
 subframe with the option of discarding it in case authentication fails without
@@ -989,20 +989,127 @@ losing already verified data).
 
 Once the data structure is defined, it's useful to discuss how the receiver
 should fill the actual data in. In general it's important to realize that some
-of the data presented above needs to be computed by the receiver, which needs
+of the data presented above needs to be computed by the receiver, which needs to
 make sure enough CPU cylces are scheduled at the right time, without running
-into the risk of blocking other operations. From this point 
+into the risk of blocking other operations. From this point of view, one
+approach is to perform data processing operations only at the boundaries of
+logical parts of the navigation message, namingly at the end of a page, at the
+end of a subframe or at the end of a frame. Processing the navigation data at
+the end of a \num{2}\si{s} page has the potential advantage of making
+data to be authenticated available faster, at the expense of the need for more
+complex logic for handling the different types of information included in
+different pages. This involves having different parsers for each word type, code
+for routing the incoming data bits to the relevant parser, and some state
+management code that keeps track of the kind of word being sent at any specific
+moment.
 
+Processing the data at the boundary of a subframe, on the other hand, can
+allow for a simpler receiver implementation as the data received in a complete
+subframe has always the same structure, and only the satellite's index in the
+almanac data is different. The downside of this is that data would be available
+only in \num{30}\si{s} intervals.
 
-% - MAC
-%   - CTR
-%   - GST_SF
-%   - PRN satellite giving authentication information
-% - NMA status header
-% - key
-% 
-% Consider only 30sec cycles
+Moreover, parsing received MACK sections might be more easily done at the
+subframe boundaries, since that's the only boundary over which a receiver can be
+sure of the structure of the data received; in other words, parsing data at the
+page level would require the receiver to understand if it received one or more
+whole MACs and associated keys of it's in the middle of receiving one of those
+entities.
 
+\vspace{\baselineskip}
+
+Assuming then that the data processing and authentication happens at the
+boundary of a subframe, we can proceed with describing a possible algorithm that
+ensures the receiver solves the PVT problem using only authenticated data:
+\begin{itemize}
+  \item the first step is to parse the data and fill out the fields in the
+    memory model described above. Data shouldn't live yet in permanent storage
+    as it hasn't been authenticated yet
+  \item after that the receiver can scan the list of keys it received, and for
+    each key it proceeds with the following:
+    \begin{itemize}
+      \item authenticate the key against the last available authenticated key.
+        This involves performing a number of hash function calls according to
+        the algorithm and constraints described earlier
+      \item if a key is not valid, the receiver should discard all the MACs
+        associated to that key as the receiver cannot guarantee their
+        authenticity
+    \end{itemize}
+  \item after the keys have been verified, the receiver can proceed to scan the
+    MACs, and for each available MAC associated to a valid key perform the
+    following:
+    \begin{itemize}
+      \item looking at the ADKD associated to the MAC, the receiver should try
+        to put together all the fields associated to the satellite authenticated
+        by the MAC
+      \item if not all required data has been received yet, the data
+        authentication step should be skipped, and the next MAC should be
+        analyzed
+      \item if all fields have instead been received, the receiver should build
+        the tag according to the OSNMA specification and authenticate it using
+        the parameters specified by the protocol (in particular, hash function
+        and hash truncation size)
+      \item if the above authentication step succeeds, the authenticated fields
+        should be stored in permanent storage and marked as authenticated;
+        moreover, the used MAC can be safely deleted
+      \item if the authentication fails, the data should be deleted as it cannot
+        be securely used by the receiver. Depending on the design of the
+        receiver, at this point a notification should bubble up to the user
+    \end{itemize}
+  \item after all available MACs have been processed, the receiver might still
+    be in possession of unauthenticated data or unused MACs due to missing data.
+    The data should be kept in a queue for use during the next processing cycle
+  \item if the number of authenticated fields in permanent memory is sufficient
+    to solve the PVT equations, the receiver shoudl move forward with PVT
+    determination
+\end{itemize}
+
+\subsubsection{Managing exceptions}
+One important aspect to be considered in order to avoid a certain class of
+attacks against robustness of the receiver is how to handle exceptions in case
+the received data represents an inconsistent state for the receiver. For
+example, an attacker might try to crash the receiver by advertising keys of a
+size and a number of MACK sections in a subframe that represent an impossibility
+given the constraint of the general size of the MACK section for a subframe. In
+this case the receiver should be able to spot the inconsistency and make sure it
+doesn't run into a class of problems like segmentation faults or buffer over-
+and underflow.
+
+In specific, the following constraints should hold at any time during the
+receiver operations:
+\begin{itemize}
+  \item no restricted value for any of these fields should have been received:
+    \begin{itemize}
+      \item \textrm{NMA status}
+      \item \textrm{Chain status}
+      \item \textrm{Number of blocks (NB)} of the DSM
+      \item \textrm{Number of MACKs (NMACK)}
+      \item \textrm{Hash function (HF)}
+      \item \textrm{MAC function (MF)}
+      \item \textrm{Key size (KS)}
+      \item \textrm{MAC size (MS)}
+      \item \textrm{ADKD} in the MACK sections
+    \end{itemize}
+  \item depending on the ADKD value received, the corresponding IOD field could
+    assume fixed values. The receiver should ignore the IOD field in those cases.
+  \item the combination of key size \textrm{KS}, MAC size \textrm{MS} and number
+    of MACK sections per subframe \textrm{NM} should at any time satisfy the
+    equation:
+    \[
+      \Big\lfloor \frac{480 - \textrm{KS}}{\textrm{MS} + 16} \Big\rfloor \geq 1
+    \]
+    where \num{480} is the size of the MACK section, \num{16} the size of the
+    MAC-Info section within it and $\lfloor x \rfloor$ is the floor
+    operation (the largest integer no bigger than $x$)
+  \item the \textrm{Number of blocks} parameter shouldn't be set to \num{0}
+  \item the \textrm{Block ID} advertised in the DSM Header should not be larger
+    than the advertised \textrm{Number of blocks}
+\end{itemize}
+
+% TODO MACK offsetting
+% TODO add checks on the way to the operativity of the chain and the mode of
+% operation (ex. what to do at chain end)
+% TODO add check for DSM-KROOT vs DSM-PKR operations
 % TODO IODnav -> how to verify if data needs authentication
 
 % - MACs can be received at different times than the navigation message: how to
