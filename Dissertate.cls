@@ -306,6 +306,8 @@
 	\vspace{25pt}
 	\vspace{15pt}
 	
+	\scshape{\Large{\bfseries{16/04/2018}}} \\
+
 	\setstretch{1.2}
 
 	\vfill

@@ -502,8 +502,8 @@ table ~\ref{table:float_kroot}.
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule
-  Distance from KROOT & Running time on Intel Core i5 (s) & Estimated running
-  time on ARM (s) \tabularnewline
+  Distance from KROOT & Time on Intel Core i5 (s) & Est. time on ARM (s)
+  \tabularnewline
 \midrule
 \endhead
   103680 & 0.1411 & 34.753 \tabularnewline
@@ -823,6 +823,13 @@ possible is as follows:
   \item first the receiver should check the presence of an authenticated key in
     its permanent storage. Should the key be absent, the receiver can proceed
     with the next step; otherwise, it can proceed with verifying the clock drift
+  \item verify that the chain in force is not in the EOC (End Of Chain) state,
+    in which case the receiver should wait to receive the root key for the next
+    chain in force as it cannot distinguish if Galileo is sending the root key
+    for the ending chain or the root key for the new chain
+  \item verify that the chain is not being revoked, in which case the receiver
+    should wait until the new root key is sent, identified by a combination of
+    \textit{NMA status} and \textit{Chain status} of "Operational" and "CREV".
   \item read the HKROOT: here the receiver builds up all the information contained
     in the HKROOT section. This is important for two reasons: get the root key
     that will allow to bootstrap the auhtentication process, and read the system
@@ -889,7 +896,7 @@ it should initiate the clock synchronization procedure as follows:
     \textrm{ADKD=11} for \num{30}\si{s} delay, \textrm{ADKD=12} for
     \num{300}\si{s})
   \item while reading subframes, the receiver should keep track of the GST
-    values read in WT2 (GST WN and GST TOW as described in \cite{galileoicd}).
+    values read in WT5 (GST WN and GST TOW as described in \cite{galileoicd}).
     Together with this, the receiver should mark the time at which the GST was
     received (i.e. the local time of beginning of reception of the subframe).
     This is important as the receiver must be able to account for the time that
@@ -1025,8 +1032,12 @@ ensures the receiver solves the PVT problem using only authenticated data:
   \item the first step is to parse the data and fill out the fields in the
     memory model described above. Data shouldn't live yet in permanent storage
     as it hasn't been authenticated yet
-  \item after that the receiver can scan the list of keys it received, and for
-    each key it proceeds with the following:
+  \item as a second step the receiver should decide if the chain currently in
+    force is reaching its end or if it's being revoked. In both cases, the
+    receiver should start to receive the new DSM-KROOT and authenticate the new
+    root key before resuming nominal operations.
+  \item in case the chain in force is in nominal mode, the receiver can scan the
+    list of keys it received, and for each key it proceeds with the following:
     \begin{itemize}
       \item authenticate the key against the last available authenticated key.
         This involves performing a number of hash function calls according to
@@ -1080,20 +1091,20 @@ receiver operations:
 \begin{itemize}
   \item no restricted value for any of these fields should have been received:
     \begin{itemize}
-      \item \textrm{NMA status}
-      \item \textrm{Chain status}
-      \item \textrm{Number of blocks (NB)} of the DSM
-      \item \textrm{Number of MACKs (NMACK)}
-      \item \textrm{Hash function (HF)}
-      \item \textrm{MAC function (MF)}
-      \item \textrm{Key size (KS)}
-      \item \textrm{MAC size (MS)}
-      \item \textrm{ADKD} in the MACK sections
+      \item \textit{NMA status}
+      \item \textit{Chain status}
+      \item \textit{Number of blocks (NB)} of the DSM
+      \item \textit{Number of MACKs (NMACK)}
+      \item \textit{Hash function (HF)}
+      \item \textit{MAC function (MF)}
+      \item \textit{Key size (KS)}
+      \item \textit{MAC size (MS)}
+      \item \textit{ADKD} in the MACK sections
     \end{itemize}
   \item depending on the ADKD value received, the corresponding IOD field could
     assume fixed values. The receiver should ignore the IOD field in those cases.
-  \item the combination of key size \textrm{KS}, MAC size \textrm{MS} and number
-    of MACK sections per subframe \textrm{NM} should at any time satisfy the
+  \item the combination of key size \textit{KS}, MAC size \textit{MS} and number
+    of MACK sections per subframe \textit{NM} should at any time satisfy the
     equation:
     \[
       \Big\lfloor \frac{480 - \textrm{KS}}{\textrm{MS} + 16} \Big\rfloor \geq 1
@@ -1101,15 +1112,22 @@ receiver operations:
     where \num{480} is the size of the MACK section, \num{16} the size of the
     MAC-Info section within it and $\lfloor x \rfloor$ is the floor
     operation (the largest integer no bigger than $x$)
-  \item the \textrm{Number of blocks} parameter shouldn't be set to \num{0}
-  \item the \textrm{Block ID} advertised in the DSM Header should not be larger
-    than the advertised \textrm{Number of blocks}
+  \item the \textit{Number of blocks} parameter shouldn't be set to \num{0}
+  \item the \textit{Block ID} advertised in the DSM Header should not be larger
+    than the advertised \textit{Number of blocks}
+  \item the combination of \textit{Chain status} and \textit{NMA status} fields
+    should be within the following set:
+    \begin{itemize}
+      \item Nominal - Operational
+      \item EOC - Operational
+      \item CREV - DU
+      \item CREV - Operational
+    \end{itemize}
 \end{itemize}
+Whenever one of these conditions is not respected, the receiver should,
+depending on the design, either abort its operations or proceed without
+authentication enabled and inform the user about the incident.
 
-% TODO MACK offsetting
-% TODO add checks on the way to the operativity of the chain and the mode of
-% operation (ex. what to do at chain end)
-% TODO add check for DSM-KROOT vs DSM-PKR operations
 % TODO IODnav -> how to verify if data needs authentication
 
 % - MACs can be received at different times than the navigation message: how to
