@@ -1,6 +1,7 @@
 %!TEX root = ../dissertation.tex
 
 \chapter{Data authentication in Galileo}
+\label{ch:data_auth}
 
 So far we've described the classic radio satellite navigation problem and
 solution. This generally accepted model works well but provides no security
@@ -215,7 +216,7 @@ where $\text{PRN\_N}$ is the PRN of the satellite being authenticated,
 $\text{PRN\_A}$ is the PRN of the satellite sending the authentication data,
 $GST_{SF}$ is the Galileo system time of the start of the subframe in which the
 MAC is contained, $CTR$ is the position of the MAC in the MACK section,
-$\text{NMA\_Status\_Header}$ is the NAM status field in the NMA header, and
+NMA\_Status\_Header is the NMA status field in the NMA header, and
 $\text{navdata}$ is fetched looking into the ADKD field of the MAC-Info section
 of the MAC and combining the data field according to \cite{osnma}. The message
 thus constructed is then verifying by applying to it the hash function specified

@@ -1,4 +1,5 @@
 \chapter{A receiver-centric analysis of OSNMA}
+\label{ch:osnma_analysis}
 
 In this chapter we'll take a critical look at the OSNMA specification, trying to
 reformulate it from a receiver point of view. The goal is to identify key areas
@@ -526,16 +527,6 @@ device capabilities it might still be an expensive operation to perform.
 %   chain without the need of receiving new KROOTs
 
 \subsection{Clock synchronization}
-% * prerequisite is that clocks are roughly synchronized: i.e. there is an upper
-% bound to the synchronization error
-% * this is not the case. Explain what could be the status of a newly born
-% receiver
-% * describe a possible attack against unsynchronized clocks
-%   * receiver has clock in the past
-%   * attacker cannot forge another authenticated KROOT, but can reuse previous
-%   keys till the current one to authenticate forged messages
-% * describe possible inclusion of GST in the KROOT section
-% * estimate overhead increase (mainly time to receive the KROOT)
 
 \subsubsection{TESLA security condition in OSNMA}
 
@@ -1001,14 +992,14 @@ make sure enough CPU cylces are scheduled at the right time, without running
 into the risk of blocking other operations. From this point of view, one
 approach is to perform data processing operations only at the boundaries of
 logical parts of the navigation message, namingly at the end of a page, at the
-end of a subframe or at the end of a frame. Processing the navigation data at
-the end of a \num{2}\si{s} page has the potential advantage of making
-data to be authenticated available faster, at the expense of the need for more
-complex logic for handling the different types of information included in
-different pages. This involves having different parsers for each word type, code
-for routing the incoming data bits to the relevant parser, and some state
-management code that keeps track of the kind of word being sent at any specific
-moment.
+end of a subframe or at the end of a frame, as suggested in
+\cite{galileo_book}. Processing the navigation data at the end of a
+\num{2}\si{s} page has the potential advantage of making data to be
+authenticated available faster, at the expense of the need for more complex
+logic for handling the different types of information included in different
+pages. This involves having different parsers for each word type, code for
+routing the incoming data bits to the relevant parser, and some state management
+code that keeps track of the kind of word being sent at any specific moment.
 
 Processing the data at the boundary of a subframe, on the other hand, can
 allow for a simpler receiver implementation as the data received in a complete

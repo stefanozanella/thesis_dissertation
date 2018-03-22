@@ -2,9 +2,7 @@
 \chapter{Introduction}
 \label{introduction}
 
-% TODO
-% - roadmap of the thesis
-
+\section{Overview}
 Since its introduction in 1973, GPS has seen tremendous growth in adoption.
 Thanks to the proliferation of use cases, positioning technologies have become
 the basis upon which many services are built. One of the most obvious ones is of
@@ -15,7 +13,8 @@ application is also agriculture, which benefits from the high precision of
 satellite positioning by automating mechanical operations on large fields like
 harvesting and sowing - in many cases tractors are today totally unmanned,
 relying solely on the precision of GPS for covering the field of operation with
-high efficiency.\\
+high efficiency.
+
 But the real explosion of GPS arguably started when major manufacturer started
 to embed receivers in smartphone and tablets. As of today, it's given for
 granted that any sufficiently evolved digital device is capable of decoding a
@@ -29,6 +28,8 @@ whether safety concerns and regulations will push this reality far in the
 future, it's undeniable that GPS plays a central role in the definition of this
 new reality.
 
+\vspace{\baselineskip}
+
 Following the success of the American experiment, other global powers decided to
 build their own version of GPS. As of today Russia, China, European Union, India
 and Japan operate their own satellite constellation for positioning purposes -
@@ -40,13 +41,15 @@ precision close to that of GPS. The Chinese BeiDou, Indian IRNSS and Japanese
 QZSS are all considered as of now regional systems, meaning they only cover a
 limited area around their respective country of origin.
 
-Possibly the most promising development is provided by the European Galileo
 constellation, the youngest of the systems mentioned so far. With a nominal
 accuracy of 1 meter for civil signal it promises to outperform the current GPS
 capabilities. This constellation is currently operational with 14 satellites,
 with a planned constellation of 30 space vehicles; at the same time, research is
 still being held under many aspects of the system.
 
+\vspace{\baselineskip}
+
+Possibly the most promising development is provided by the European Galileo
 No matter the size and age of these systems, overall satellite positioning
 technology has seen various steps of improvements over the years, and in two
 main areas: hardware improvements on the space vehicles and optimizations in the
@@ -57,7 +60,8 @@ and IIIC). Improvements generally range across improvements of nominal life,
 increases in the radio transmission performance (e.g. signal power at Earth's
 surface) and hardware addition to better cope with errors (e.g. addition of
 laser retro-reflectors in block IIIA to disentangle clock errors from ephemeris
-errors). \\ 
+errors). 
+
 Another reason for the development of new space vehicles is to allow
 deployment of new signals. For example, the last planned block of GPS satellites
 is going to introduce 3 new signals (L1C, L2C and M). Each of them improves
@@ -65,6 +69,9 @@ on the existing signals allowing for increased robustness against interference
 and data loss, and higher accuracy through increased bandwidth, longer spreading
 codes and higher power.
 
+\vspace{\baselineskip}
+
+Possibly the most promising development is provided by the European Galileo
 Together with this, recent developments have also happened in the direction of
 enhancing satellite positioning by using other, more local sources. For example,
 aviation has stringent needs in terms of monitoring and client warning in case
@@ -79,6 +86,9 @@ signal through both WiFi and cell tower triangulation, resulting in better user
 experiences in terms of faster and more precise resolution of the user's
 position.
 
+\vspace{\baselineskip}
+
+Possibly the most promising development is provided by the European Galileo
 Despite all these efforts to improve on the original GPS signal, little to no
 practical development has so far been made in making the civil signal secure.
 Current signals position themselves on two very far end of the security
@@ -120,6 +130,8 @@ theoretical protocol has been adapted to fit the current Galileo data signal by
 taking advantage of the reserved bit blocks factored into the actual frame
 structure, which allows for support over the E1b and E1c signals. 
 
+\vspace{\baselineskip}
+
 As of today, the protocol remains in form of proposal, but in the course of 2018
 it's supposed to be part of the Signal in Space (SIS) testing. The goal of this
 publication is to provide a software implementation of this scheme that follows
@@ -131,3 +143,17 @@ of the Università degli Studi di Padova. This project aims at developing a
 software simulator that can test a number of possible attacks on Galileo (and
 GPS) signals, and implementation of the proposed Galileo OSNMA (Open Service
 Navigation Message Authentication) is part of it.
+
+\section{Outline}
+
+This document starts by giving a detailed panorama of how radio navigation
+works; in Chapter~\ref{ch:primer} we will describe how a receiver can determine
+it position, velocity and time by using information received from 4 or more
+satellites. We'll proceed in Chapter~\ref{ch:gnss_intro} to give a brief account
+of the evolution of navigation systems that will put Galileo in the right
+historical context. Next, in Chapter~\ref{ch:data_auth} we'll explore TESLA, an
+authentication protocol suited for data streams and OSNMA, the Galileo
+implementation of TESLA. Chapter~\ref{ch:osnma_analysis} is dedicated to analyze
+the OSNMA protocol and to provide clarity over certain aspects that might
+concern receiver implementors. Finally, in Chapter~\ref{ch:conclusion} a summary
+of the findings and possible future expansions is given.

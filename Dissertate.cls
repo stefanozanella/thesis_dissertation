@@ -248,7 +248,6 @@
 	\frontispiece
 	\dedicationpage
 	\abstractpage
-	\sommario
 	\tableofcontents
 	\phantomsection
 	\clearpage
@@ -366,12 +365,6 @@
 	\noindent
 	\input{frontmatter/thanks}
 	\vspace*{\fill} \newpage
-}
-
-\newcommand{\sommario}{
-	\phantomsection
-	\chapter*{Sommario}
-	\input{frontmatter/preface}
 }
 
 \newcommand{\acronyms}{
