@@ -19,15 +19,15 @@ locally and the MACK sections it receives together with the unauthenticated
 message.
 
 This distinction is purely analytical in nature, but can help breaking down the
-problem in distinct blocks, each of which we'll analyze in the sections that
-follow.
+problem into distinct blocks, which will be separately analyzed in the sections
+that follow.
 
 \section{Authentication bootstrap}
 For the bootstrap phase we'll consider a generic Galileo receiver with no access
 to any data network other than the radio channels over which the Galileo
-satellites transmit. This receiver has never received before any navigation
-data, and only contains onboard a set of public keys that should allow it to
-verify the authenticity of a root key sent in the DSM-KROOT section.
+satellites transmit. This receiver has never received any navigation
+data before, and only contains onboard a set of public keys that should allow it to
+verify the authenticity of the root keys sent in the DSM-KROOT section.
 
 To keep the discussion focused, we'll skip over the specific details of
 acquiring one or more signals and we'll assume the receiver can enter the
@@ -48,33 +48,33 @@ section of data is transmitted at a rate of 8 bits every 2s (i.e. 4bps) and is
 composed of two headers of 8 bits each, and of a variable number of blocks of
 104 bits. Each subframe contains the two headers and a DSM block. According to
 the current specification, the number of blocks that compose a DSM can vary
-between 6 and 16 (but there are 5 reserved values so potentially it could be
+between 6 and 16 (but there are 5 reserved values so it could possibly be
 longer). In order for a receiver to be able to correctly compose a DSM, in the
 first block the total number of blocks is sent.
 
 \subsubsection{HKROOT receiving time}
-The first simple conclusion we draw from here is that reception of a whole DSM
-takes between 180s and 480s. In order to speed up the bootstrap operation a
-receiver might cache the navigation message sent, provided it won't use it until
-it has been authenticated in full. The amount of caching memory needed will be
-analyzed later on in the chapter.
+The first simple conclusion we draw from what we've seen so far is that
+reception of a whole DSM takes between 180s and 480s. In order to speed up the
+bootstrap operation a receiver might cache the navigation message sent, provided
+it won't use it until it has been authenticated in full. The amount of caching
+memory needed will be analyzed later on in the chapter.
 
 \subsubsection{Variable size of the DSM}
 A second observation is about not knowing the precise size of the DSM upfront.
 Since the receiver needs to cache the DSM until it's fully received and can be
 decoded, two general approaches are possible:
-\begin{itemize}
+\begin{enumerate}
   \item a fixed amount of memory is allocated that accounts for the longest
-    possible DSM. This memory could potentially be separate from the RAM
-    associated with the CPU that perform the authentication operations, in order
-    to avoid security problems due to buffer overflows. This could be expensive
-    and potentially inefficient (for example, if a DSM is only 6 blocks long,
-    then the memory reserved for the other 10 blocks is wasted)
+    possible DSM. This memory could be separate from the RAM associated with the
+    CPU that perform the authentication operations, in order to avoid security
+    problems due to buffer overflows. This could be expensive and inefficient
+    (for example, if a DSM is only 6 blocks long, then the memory reserved for
+    the other 10 blocks is wasted)
   \item the RAM of the computational unit is used to cache the DSM until it's
     possible to decode it. In this case, a variable amount of memory is
     allocated, and two strategies could be followed to manage the length
     variability:
-    \begin{itemize}
+    \begin{enumerate}
       \item the receiver makes sure that it starts decoding a DSM from its first
         block, which contains the information about the total number of blocks.
         This means potentially discarding several minutes of data
@@ -82,31 +82,31 @@ decoded, two general approaches are possible:
         and then recombines them at the end (for example, using some form of
         sorting algorithm), or on the fly (for example, using something like a
         linked list)
-    \end{itemize}
-\end{itemize}
+    \end{enumerate}
+\end{enumerate}
 
 This scenario offers the possibility for several considerations. The first one
 is that, no matter the strategy chosen to store the DSM blocks, care must be
 taken not to expose the receiver to memory overflow attacks. Since the data
 that's being received at this point in time is not authenticated yet, it could
-also be forged by an attacker who would send more blocks than what's advertised
+also be forged by an attacker who would send more blocks than what stated
 in the first DSM block. If a receiver doesn't implement a preventive check, this
 kind of attack might allow an attacker to overwrite some reserved memory with
 executable malicious code. A simple check that the number of the block being
 processed is within the advertised length is sufficient to prevent this kind of
 vulnerability.
 
-The second consideration is that neither of the last two scenarios are ideal.
-The first one is the safest one, but results in even longer bootstrap times. The
+The second consideration is that neither of the scenarios in option 2) are ideal.
+In fact option 1) is safer, but results in even longer bootstrap times. The
 second option is faster but it's based on the assumption that the satellites
 will keep sending the same key over and over again (i.e. if blocks with lower
-indexes are missed, then they can be received later on by a successive
+indexes are missed, then they can be received later on by a subsequent
 transmission of the same key). Moreover, dealing with the unknown length of the
 DSM requires more expensive data structures and operations.
 
-That said, an ideal approach for a receiver would be to be able to know the
-total length of the DSM no matter at what point of its transmission it starts to
-receive. This way the receiver could at once allocate all the needed memory, and
+That said, an ideal approach for a receiver would be to learn the total length
+of the DSM no matter at what point of its transmission it starts to receive.
+This way the receiver could allocate all the needed memory at once, and
 subsequently fill in the gaps with the received blocks (provided it also
 implements the check to prevent memory overflow attacks). In the OSNMA protocol
 this could be achieved by sending the field \textit{Number of blocks} in the DSM
@@ -120,7 +120,7 @@ The specification provided in \cite{osnma} recommends for a single key chain
 an extension of $2^{25}$ to $2^{26}$ keys. The actual duration of such a chain
 is dependent on the key size, the number of satellites and the number of MACK
 sections per subframe; with a key size of 82 bits, 36 satellites and 3 MACK
-sections per subframe, the chain would have a duration of around 4 months.
+sections per subframe, the chain would have a duration of about 4 months.
 
 Under these assumptions, we can try to analyze the scenario in which a receiver
 with no prior navigation data starts to receive a navigation message inclusive
@@ -137,7 +137,7 @@ worst-case analysis that's independent from the transmission of floating KROOTs.
 
 \subsubsection{Receiver operation}
 
-Having lined out the context, we can proceed on describing the set of operations
+Having laid out the context, we can proceed to describe the set of operations
 a receiver is required to perform in order to authenticate the navigation
 message.
 
@@ -159,7 +159,7 @@ $L$ times the hash function to $K_L$.
 
 \subsubsection{Initial authentication benchmarking}
 
-Following this result, we've tried to perform a benchmark to understand time and
+Following this result, we perform a benchmark to understand time and
 resource consumption to aid hardware design and implementation for receivers
 that should support OSNMA.
 
@@ -171,7 +171,7 @@ $2^{30}$ keys. The options for key length are fixed and provided in the
 \textit{Key Size} included in the DSM-KROOT; these range between $80$ and $256$.
 The possible hash functions are SHA256, SHA3-224 and SHA3-256.
 
-Since the low availability of open source libraries that support SHA3 at the
+Given the limited availability of open source libraries that support SHA3 at the
 time of writing, we've chosen to perform the benchmarking using \textbf{Python
 3.6}. Since this dynamic language is not what usually gets used to write
 embedded code, we've compared its performances with a C implementation of the
@@ -227,7 +227,7 @@ the SHA3 family of hash functions, but in general the variability in computation
 time is dominated by the chain length.
 
 One important aspect to focus our attention on is the relative significance of
-this benchmark with respect to the average computation power of an average
+this benchmark with respect to the average computation power of a common 
 receiver. The numbers just described have been obtained by running the code on a
 MacBook Pro sporting a 2.6GHz Intel Core i5 processor. A benchmark sheet such as
 \cite{bm_intel_core_i5} can show that such a processor can handle roughly $50
@@ -238,18 +238,18 @@ receivers the CPU clocks at much lower rates than their maximum (see for example
 performance of the ARM9 family reaches $1.1$ DMIPS per MHz, which means we can
 assume the reference CPU can achieve roughly $230$ DMIPS when at full speed.
 
-For us to translate these observations to an estimate of the running time of the
+In order to translate these observations to an estimate of the running time for the
 chain computation on an embedded device, we've correlated the running time of
 the Python code to that of its C counterpart. Surprisingly, the same benchmark
-for a key chain of length $2^{20}$ over the SHA-256 function seems to be more
-performant in Python than in C, as exposed in table~\ref{table:bm_c_python}. As a
-reference, the Python snippet is provided in listing~\ref{lst:python_bm} and its C
-counterpart in listing~\ref{lst:c_bm}. This is because the Python implementation
-uses the same libraries as the C code, but the Python environment calls out to
-architecture-specific assembly implementations of those functions. In any case,
-this shows that the performances of the two implementations are within the same
-order of magnitude, so comparing directly against the Python results is a good
-approximation of the best case scenario.
+for a key chain of length $2^{20}$ over the SHA-256 function seems to perform
+better in Python than in C, as exposed in table~\ref{table:bm_c_python}. As a
+reference, the Python snippet is provided in listing~\ref{lst:python_bm} and its
+C counterpart in listing~\ref{lst:c_bm}. This is because the Python
+implementation uses the same libraries as the C code, but the Python environment
+calls out to architecture-specific assembly implementations of those functions.
+In any case, this shows that the performances of the two implementations are
+within the same order of magnitude, so comparing directly against the Python
+results is a good approximation of the best case scenario.
 
 \lstinputlisting[
   language=python,
@@ -284,14 +284,14 @@ power is measured in DMIPS, a definition of which can be found in \cite{dmips}.
 A simple proportion shows that
 
 \begin{equation}
-  t_j : P_{BM} = t_rj : P_R
+  t_j / P_{BM} = t_{rj} / P_R
 \end{equation}
 
-where $t_rj$ is the estimate of the running time on the receiver processor. This
+where $t_{rj}$ is the estimate of the running time on the receiver processor. This
 equation solved for this last variable yields:
 
 \[
-  t_rj = t_j \frac{P_{BM}}{P_R}
+  t_{rj} = t_j \frac{P_{BM}}{P_R}
 \]
 
 Substituting the variables with the numbers devised above we can obtain an
@@ -300,7 +300,7 @@ approximate conversion as follows:
 \begin{equation}
   \label{eq:mips_conv}
   \begin{aligned}
-  t_rj &= \frac{50 \cdot 10^3}{230} t_j\
+  t_{rj} &= \frac{50 \cdot 10^3}{230} t_j\
         = 246.30 t_j
   \end{aligned}
 \end{equation}
@@ -330,16 +330,16 @@ average GNSS receiver}
 \label{table:bm1_recv}
 \end{longtable}
 
-Looking at this end result we can see how the worst case scenario might result
+By looking at this result we can see how the worst case scenario might result
 in severe energy consumption by the receiver itself. Considering just the
 lengths that have been proposed in the specifications, we can see how a receiver
 might spend between 3.5 and 5 hours of computation just to perform the
 authentication of a single key. Considering the case of mobile devices such as
 smartphones, this is an amount of time that can have a noticeable negative
-impact on battery level and might make data authentication infeasible for normal
+impact on battery level and might make data authentication infeasible for common
 uses.
 
-To complete the analysis, we tried to analyze the change in computation time as
+To complete the analysis, we evaluated the change in computation time as
 the key length varies. As figure~\ref{fig:key_length} shows, there's a slight
 increase in computation time of a single hash in the case of SHA-256 when the
 key size reaches around 180 bits, but in the case of the other functions the
@@ -357,7 +357,7 @@ affect the receiver in a significant way.
 As part of the protocol specification described in \cite{osnma}, a mention
 is made regarding the possibility of sending DSM for KROOTs other than the one
 with index $0$, but no further information related to how this would work are
-provided. In this section we dive deeper into the topic and make some hypothesis
+provided. In this section we dwelve deeper into the topic and make some hypothesis
 on how floating KROOTs could be managed effectively and efficiently.
 
 Due to the nature of the key chain in TESLA, a key $K_m$ sent as part of a MACK
@@ -481,8 +481,8 @@ way keys are spread across satellites, there would be no need to reprogram the
 receivers).
 
 A second observation is that the time resolution for floating KROOT is 1
-day. This means that not every key can be sent in a floating KROOT, but rather
-only the first keys that is applied at the beginning of a Galileo day can be
+day. This means that not every key can be used as a floating KROOT, but rather
+only the first key that is applied at the beginning of a Galileo day can be
 correctly targeted by means of the KROOT WN and KROOT DOW parameters. This means
 that approximately 1 out of a minimum of ~103680 and 1 out of a maximum of
 ~414720 keys can be used as floating KROOTs \footnote{these two numbers are the number of
@@ -491,13 +491,13 @@ subframe, calculated by multiplying the number of keys in a subframe by the
 number of satellites and by the number of subframes in a day:
 $\frac{86400}{30}36 \cdot \textrm{NMACK}$}.
 
-If we take the assumption that every day the floating KROOT will change, we can
-then consider this result is a similar fashion as done above for the first
-KROOT. In particular, we can consider the number of keys sent in a day as being
-the maximum distance that keys will have from the nearest KROOT, and this in
-turn allows us to derive a loose upper bound on how long it can take under these
-circumstances to verify a key against a floating KROOT. Applying the same
-benchmark script as used in the previous section, and applying the same
+If we make the assumption that a new floating KROOT is broadcast and signed
+every day, we can then consider this result in a similar fashion as done above
+for the first KROOT. In particular, we can consider the number of keys sent in a
+day as being the maximum distance that keys will have from the nearest KROOT,
+and this in turn allows us to derive a loose upper bound on how long it can take
+under these circumstances to verify a key against a floating KROOT. Applying the
+same benchmark script as used in the previous section, and applying the same
 performance conversion devised in ~\ref{eq:mips_conv}, we obtain the numbers in
 table ~\ref{table:float_kroot}.
 
@@ -515,8 +515,9 @@ table ~\ref{table:float_kroot}.
 \end{longtable}
 
 This is a definite improvement over the time it takes to authenticate a key at
-the end of the chain with the root key at its beginning, but depending on a
-device capabilities it might still be an expensive operation to perform.
+the end of the chain with the root key at its beginning, but depending on the
+receiver computational capabilities it might still be an expensive operation to
+perform.
 
 % MAYBE if you have time
 % Conclusions:
@@ -531,26 +532,27 @@ device capabilities it might still be an expensive operation to perform.
 \subsubsection{TESLA security condition in OSNMA}
 
 One of the prerequisites of TESLA is for the clocks of receiver and sender to be
-roughly synchronized. More specifically, TESLA is based on a security condition
+loosely synchronized. More specifically, TESLA is based on a security condition
 that allows the receiver to identify a packet arrived safely by knowing
-unambiguously that the sender didn't send yet the corresponding key disclosure
-packet. This is because, should the opposite hold true, an attacker could have
-received the key disclosure packet and forged a message using that key; without
-the guarantee specified in the security condition the receiver has no wy to
-identify this kind of attack.
+unambiguously that the corresponding key disclosure packet has not been
+transmitted yet. This is because, should the opposite hold true, an attacker
+could have received the key disclosure packet and forged a message using that
+key; without the guarantee specified in the security condition the receiver has
+no way to detect this kind of attack.
 
-In OSNMA is still necessary to match this condition to guarantee the security of
-the whole algorithm. We'll describe next a possible attack that relies on the
-clock of the receiver being undefinitely out of sync with system time.
+In OSNMA it's still necessary to meet this condition in order to guarantee the
+security of the whole algorithm. We'll describe next a possible attack that
+relies on the clock of the receiver being undefinitely out of sync with system
+time.
 
 \subsubsection{An attack against clock synchronization}
 The scenario is composed of the following actors:
 \begin{itemize}
-  \item a leigitimate Galileo satellite, sending authenticated navigation data
+  \item a legitimate Galileo satellite, sending authenticated navigation data
     following the OSNMA specification. The clock of this sender is perfectly
-    synchronized with system time
-  \item a Galileo receiver with no with an unknown but finite clock drift
-    $\delta_t$
+    synchronized with the central system time
+  \item a Galileo receiver with an unknown clock drift $\delta_t$ upper bounded
+    by a known fixed value $'delta_{max}$
   \item an attacker capable of receiving Galileo navigation data and transmit a
     custom signal resembling that of one or more Galileo satellites, and
     containing ad-hoc forged data.
@@ -559,15 +561,15 @@ The scenario is composed of the following actors:
 In this scenario the attacker is free to modify the received data, but is
 limited in the following:
 \begin{itemize}
-  \item it cannot tamper the root key transmitted in the HKROOT section. This is
+  \item it cannot forge the root key transmitted in the HKROOT section. This is
     based on the security of the asymmetric scheme used to authenticate the root
     key
-  \item for the same reason, it cannot tamper the transmission time of mentioned
+  \item for the same reason, it cannot forge the transmission time of mentioned
     key. The transmission time (in form of the Galileo week number and day of
-    week) is included in the signature and cannot be forged without a receiver
-    being able to identify such forgery
+    week) is included in the signature and such forgery would be detected with
+    the same high probability as a forged key
   \item if it wishes to reuse a key of the chain, it must send it in the right
-    order with respect with the others and with the right time. This is because
+    order with respect to the others and with the right time. This is because
     the transmission time of a key univocally determines its index in the chain,
     and the transmission time is also authenticated in the MACs sent in the
     MACK sections. Should the key be sent out of order (i.e. with the wrong
@@ -612,7 +614,7 @@ Under these conditions we can see what happens on the receiver side:
     of the original data.
   \item Once the root key is authenticated, the receiver starts to receive the
     navigation message and the respective MACK sections. The receiver at some
-    point will verify that the GST advertised in the subframe corresponds with
+    point will verify that the GST advertised in the subframe matches 
     the time that has been signed by the keys it's receiveing; this operation
     will also succeed since at this point the receiver has no knowledge of the
     true system time and the attacker is correctly building the signatures
@@ -623,7 +625,7 @@ Under these conditions we can see what happens on the receiver side:
     is being preserved by the attacker.
 \end{itemize}
 
-As the example shows without guarantee of synchronicity between the receiver
+As shown by the above example, without guarantee of synchronization between the receiver
 and sender's clocks, and without an upper bound on the drift between the two, a
 spoofing attack can go undetected even in the presence of data authentication in
 case a receiver starts receiving without prior knowledge of any system
@@ -647,7 +649,7 @@ receivers to maintain the clock drift under a specific threshold.
 
 An example of the first case is to use a network protocol such as NTP to perform
 an initial time synchronization before starting to receive and authenticate
-Galileo data. This is an approach that can suit some receivers, but for some use
+Galileo data. This is an approach that can suit some receivers, but for other use
 cases it's not viable. If we consider for example a receiver mounted on a boat
 to provide assistance to deep sea navigation, requiring Internet connectivity in
 such an environment might be too hard a constraint.
@@ -669,14 +671,14 @@ detail some specific configurations that might suit the case of OSNMA.
 
 \vspace{\baselineskip}
 
-Let's assume a receiver using a clock with a known drift of $d$ \si{ppm}. Let's
+Let's assume a receiver using a clock with a known relative drift of $d$. Let's
 also assume the receiver starts its life with the clock perfectly synchronized
 with GST. We know that TESLA requires sender and receiver not to drift apart
 more than an upper bound $\delta_{max}$ \si{s}. We can therefore derive after how much
 time the threshold will be reached with:
 \begin{equation}
   \label{eq:drift_threshold}
-  t_{th} = \frac{\delta_{max}}{86400 \cdot d}
+  t_{th} = \frac{\delta_{max}}{86400 \cdot d \si{ppm}}
 \end{equation}
 This number gives a lower bound on how often the receiver needs to synchronize
 itself against GST. If the receiver adjusts its time \textit{at least} every
