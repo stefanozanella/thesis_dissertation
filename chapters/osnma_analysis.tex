@@ -195,11 +195,10 @@ supported by the protocol.
 
 The results of this first benchmark can be seen in figure~\ref{fig:bm1}. The values
 that make up the graph can be seen in table~\ref{table:bm1}. It's important to
-observe that the x-axis is in logarithmic scale since the value represents the
-exponent to the power of $2$ used to calculate the chain length.  We can observe
-that the relationship is basically linear (i.e. transforming the x-axis to a
-linear scale would make the graph look like a line); that is, doubling the size
-of the chain directly doubles the time it takes to compute the chain.
+observe that the both axis are in logarithmic scale.  We can observe
+that the relationship is basically linear with little difference between hash
+functions: that is, no matter the function chosen, doubling the size of the
+chain directly doubles the time it takes to compute the chain.
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule
@@ -234,9 +233,10 @@ MacBook Pro sporting a 2.6GHz Intel Core i5 processor. A benchmark sheet such as
 000$ DMIPS. As a reference, the STA8088EXG GNSS receiver \cite{st_rec_specs}
 sports an ARM9 processor clocking at a maximum of 208MHz. Usually in such
 receivers the CPU clocks at much lower rates than their maximum (see for example
-\cite{mediatek_specs}). According to the knowledge base of ARM, the maximum
-performance of the ARM9 family reaches $1.1$ DMIPS per MHz, which means we can
-assume the reference CPU can achieve roughly $230$ DMIPS when at full speed.
+\cite{mediatek_specs}). According to the ARM Information Center website
+\cite{armkb}, the maximum performance of the ARM9 family reaches $1.1$ DMIPS per
+MHz, which means we can assume the reference CPU can achieve roughly $230$ DMIPS
+when at full speed.
 
 In order to translate these observations to an estimate of the running time for the
 chain computation on an embedded device, we've correlated the running time of
@@ -552,7 +552,7 @@ The scenario is composed of the following actors:
     following the OSNMA specification. The clock of this sender is perfectly
     synchronized with the central system time
   \item a Galileo receiver with an unknown clock drift $\delta_t$ upper bounded
-    by a known fixed value $'delta_{max}$
+    by a known fixed value $\delta_{max}$
   \item an attacker capable of receiving Galileo navigation data and transmit a
     custom signal resembling that of one or more Galileo satellites, and
     containing ad-hoc forged data.
@@ -674,11 +674,11 @@ detail some specific configurations that might suit the case of OSNMA.
 Let's assume a receiver using a clock with a known relative drift of $d$. Let's
 also assume the receiver starts its life with the clock perfectly synchronized
 with GST. We know that TESLA requires sender and receiver not to drift apart
-more than an upper bound $\delta_{max}$ \si{s}. We can therefore derive after how much
+more than an upper bound $\delta_{max}$. We can therefore derive after how much
 time the threshold will be reached with:
 \begin{equation}
   \label{eq:drift_threshold}
-  t_{th} = \frac{\delta_{max}}{86400 \cdot d \si{ppm}}
+  t_{th} = \frac{\delta_{max}\,\si{s}}{86400 \cdot d\,\si{ppm}}
 \end{equation}
 This number gives a lower bound on how often the receiver needs to synchronize
 itself against GST. If the receiver adjusts its time \textit{at least} every
