@@ -22,7 +22,7 @@ As of today, GPS is comprised of three segments: the space segment, ground
 segment and user segment.
 
 The space segment is the constellation of satellites that broadcast the radio
-signal used by users to determine their positions. The ground segment is the
+signal employed by users to determine their positions. The ground segment is the
 operating network in charge of maintaining satellites in their proper orbit and
 of making sure the data that's sent is accurate. The user segment is composed of
 user receiving equipment. GPS receivers are mainly responsible for resolving the
@@ -90,7 +90,7 @@ support SoL (Safety of Life) operations. In addition to this, a new military
 signal (M) has been added on the L1 and L2 bands.
 
 Originally, the GPS signal used a BPSK modulation that in conjunction with the
-use of spreading code allowed for maximization of bandwidth usage. To accomodate
+use of spreading codes allowed for maximization of bandwidth usage. To accomodate
 for transmission of different signals on the same frequency band, BOC modulation
 has been introduced in newer signals. This achieves sufficient spectral
 separation for existing receivers to keep working and for new receivers to be
@@ -148,8 +148,8 @@ the service plan for Galileo includes from the start a broader range of options:
     that can then proceed with locating the source of the beacon by reversing
     the PVT equation normally used in GNSS
   \item \textbf{Safety of Life} is a service aimed at offering worldwide system
-    integrity. It has been foreseen by the Galileo program but it's actual
-    implementation has been postponed to later phases
+    integrity. It has been foreseen by the Galileo program but its actual
+    implementation has been postponed to later phases of the project
 \end{itemize}
 Each of these services is going to be available on one or more frequencies of
 Galileo's signal plan, which is described next.
@@ -232,16 +232,16 @@ pilot signal has the purpose of aiding initial signal acquisition.
 As in the case of GPS, usage of PRN allows for transmission of multiple signals
 from different SVs over the same frequency - an implementation of Direct
 Sequence Spread Spectrum Code Division Multiple Access (DS-SS CDMA). Apart from
-that, Galileo employs a BOC modulation to allow for interoperation with the GPS
-signal, as for example in the case of L1/E1 the same frequency band is used by
-the two system. The topic of interoperability is expanded in a following
-section.
+that, Galileo employs a Binary Offset Carrier (BOC) modulation to allow for
+interoperation with the GPS signal, as for example in the case of L1/E1 the same
+frequency band is used by the two system. The topic of interoperability is
+expanded in a following section.
 
 Looking at the signal plan, one might notice that Galileo transmits a variety of
 signals much larger than the current GPS one. This variety is characterized by
 variations in the code length and navigation message data rate. This is an
 engeenering design choice to support a wide variety of use cases, such as users
-that receive a very faint signal, rather than users that move at high speed.
+that receive a very faint signal, or users that move at high speed.
 
 \subsection{System architecture}
 Transmission and control of the described range of signals is performed within
@@ -282,7 +282,7 @@ The GCCs perform duties related to monitoring and control of the
 constellation, together with planning, flight dynamics and operations
 preparation of the same.\\
 Through TT\&C, instead, ground control performs data exchange with the entire
-constellation through 11m antenna dishes that operates in the S-band. Normally
+constellation through 11m antenna dishes that operate in the S-band. Normally
 these stations are used to perform tele-command of the satellites and to receive
 telemetry data that is further used for off-line satellite orbit determination.
 
@@ -434,7 +434,7 @@ evolution of the design of all major GNSS.
 
 For example, when designing the frequency plan of Galileo, one of the drivers
 was the selection of common center frequencies for some of the signals: this was
-to prevent unnecessary increase in the cost of multi-frquency receivers and to
+to prevent unnecessary increase in the cost of multi-frequency receivers and to
 make combined processing of phase observations possible.
 
 From the point of view of signal spreading modulation, the choice of CDMA was a

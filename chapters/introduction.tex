@@ -39,17 +39,17 @@ reach.
 Russian GLONASS is the oldest of these newer constellations, and reaching a
 precision close to that of GPS. The Chinese BeiDou, Indian IRNSS and Japanese
 QZSS are all considered as of now regional systems, meaning they only cover a
-limited area around their respective country of origin.
-
-constellation, the youngest of the systems mentioned so far. With a nominal
-accuracy of 1 meter for civil signal it promises to outperform the current GPS
-capabilities. This constellation is currently operational with 14 satellites,
-with a planned constellation of 30 space vehicles; at the same time, research is
-still being held under many aspects of the system.
+limited area around their respective country of operation.
 
 \vspace{\baselineskip}
 
 Possibly the most promising development is provided by the European Galileo
+constellation, the youngest of the systems mentioned so far. With a nominal
+accuracy of 1 meter for civil signal it promises to outperform the current GPS
+capabilities. This constellation is currently operational with 14 satellites,
+with a planned total of 30; at the same time, research is
+still being held under many aspects of the system.
+
 No matter the size and age of these systems, overall satellite positioning
 technology has seen various steps of improvements over the years, and in two
 main areas: hardware improvements on the space vehicles and optimizations in the
@@ -58,23 +58,22 @@ continuously modernized, resulting in the release of 7 different satellite
 versions (blocks I to IIIA), and another 2 planned but not yet scheduled (IIIB
 and IIIC). Improvements generally range across improvements of nominal life,
 increases in the radio transmission performance (e.g. signal power at Earth's
-surface) and hardware addition to better cope with errors (e.g. addition of
+surface) and hardware additions to better cope with errors (e.g. addition of
 laser retro-reflectors in block IIIA to disentangle clock errors from ephemeris
 errors). 
 
 Another reason for the development of new space vehicles is to allow
 deployment of new signals. For example, the last planned block of GPS satellites
 is going to introduce 3 new signals (L1C, L2C and M). Each of them improves
-on the existing signals allowing for increased robustness against interference
+on the existing ones allowing for increased robustness against interference
 and data loss, and higher accuracy through increased bandwidth, longer spreading
 codes and higher power.
 
 \vspace{\baselineskip}
 
-Possibly the most promising development is provided by the European Galileo
 Together with this, recent developments have also happened in the direction of
 enhancing satellite positioning by using other, more local sources. For example,
-aviation has stringent needs in terms of monitoring and client warning in case
+aviation has stringent needs in terms of monitoring and warning clients in case
 of, e.g., clock problems. In such cases aircrafts must be notified in real-time
 that they can't rely on a GNSS for precision approach. Neither GPS nor GLONASS
 support this use case, so a support system was developed under the name of GBAS
@@ -88,10 +87,9 @@ position.
 
 \vspace{\baselineskip}
 
-Possibly the most promising development is provided by the European Galileo
 Despite all these efforts to improve on the original GPS signal, little to no
 practical development has so far been made in making the civil signal secure.
-Current signals position themselves on two very far end of the security
+Current signals position themselves on two very far ends of the security
 spectrum. On one side, military signals provide security through encryption;
 this not only provides state-of-the-art security to the signal, but also allows
 for restricted access to it: only receivers with authorized access are able to
@@ -113,8 +111,8 @@ In recent years this topic gained a strong momentum, and research on different
 levels and different directions has been performed to solve the problem of
 securing GNSS signals. Proposed solutions can be generally categorized based
 on what part of the GNSS signal they aim to protect. A number of proposals have
-been developed to make the spreading codes more robust, to prevent from, e.g.,
-selective-delay attacks. These techniques seem to provide better overall
+been developed to make the spreading codes more robust, for example to prevent
+from selective-delay attacks. These techniques seem to provide better overall
 security but are arguably more demanding on the receiver side in terms of
 implementation. A simpler general approach is instead that of leaving the
 overall signal structure unchanged, protecting only the navigation message
@@ -125,35 +123,38 @@ The TESLA protocol is an asymmetric data authentication protocol specifically
 designed to work over a continuous, real-time stream of data over a lossy
 channel. The main idea behind it is that of using hash chains to generate
 message authentication codes, with keys being revealed periodically to allow for
-verification of previously-received messages. In a recent proposal, the
+verification of previously-received messages. In a recent specification, the
 theoretical protocol has been adapted to fit the current Galileo data signal by
 taking advantage of the reserved bit blocks factored into the actual frame
 structure, which allows for support over the E1b and E1c signals. 
 
 \vspace{\baselineskip}
 
-As of today, the protocol remains in form of proposal, but in the course of 2018
-it's supposed to be part of the Signal in Space (SIS) testing. The goal of this
-publication is to provide a software implementation of this scheme that follows
-the guidelines approved by ESA, to allow for easy but accurate testing of the
-operational parameters that are going to be subject to change and/or remain
-variable in the final implementation. This effort joins forces with the
-more-GOSSIP project being developed at the Department of Electrical Engineering
-of the Università degli Studi di Padova. This project aims at developing a
-software simulator that can test a number of possible attacks on Galileo (and
-GPS) signals, and implementation of the proposed Galileo OSNMA (Open Service
-Navigation Message Authentication) is part of it.
+As of today, the protocol remains in form of a separate specification from the
+ICD, but in the course of 2018 it's supposed to be part of the Signal in Space
+(SIS) testing. The goal of this publication is to provide a software
+implementation of this scheme that follows the guidelines approved by ESA, to
+allow for easy but accurate testing of the operational parameters that are going
+to be subject to change and/or remain variable in the final implementation. This
+effort joins forces with the more-GOSSIP project being developed at the
+Department of Electrical Engineering of the Università degli Studi di Padova.
+This project aims at developing a software simulator that can test a number of
+possible attacks on Galileo (and GPS) signals, and implementation of the
+proposed Galileo OSNMA (Open Service Navigation Message Authentication) is part
+of it.
 
 \section{Outline}
 
 This document starts by giving a detailed panorama of how radio navigation
 works; in Chapter~\ref{ch:primer} we will describe how a receiver can determine
-it position, velocity and time by using information received from 4 or more
+its position, velocity and time by using information received from 4 or more
 satellites. We'll proceed in Chapter~\ref{ch:gnss_intro} to give a brief account
 of the evolution of navigation systems that will put Galileo in the right
 historical context. Next, in Chapter~\ref{ch:data_auth} we'll explore TESLA, an
 authentication protocol suited for data streams and OSNMA, the Galileo
-implementation of TESLA. Chapter~\ref{ch:osnma_analysis} is dedicated to analyze
-the OSNMA protocol and to provide clarity over certain aspects that might
+implementation of TESLA. Chapter~\ref{ch:osnma_first_steps} is dedicated to analyze
+the steps a receiver needs to perform to reach the state in which received data
+can be authenticated continuously. In Chapter~\ref{ch:osnma_operations} we'll
+continue the analysis of OSNMA and provide clarity over certain aspects that might
 concern receiver implementors. Finally, in Chapter~\ref{ch:conclusion} a summary
 of the findings and possible future expansions is given.

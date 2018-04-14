@@ -1,7 +1,7 @@
 %!TEX root = ../dissertation.tex
 % Abstract
 
-Since it's first incarnation in the 70s under the "NAVSTAR" name, satellite
+Since its first incarnation in the 70s under the "NAVSTAR" name, satellite
 positioning acquired more and more relevance in the life of everyone. Directly
 or indirectly, we all rely on technological aids to precisely define our
 position. This exponential trend uncovered in recent years the need to secure
@@ -9,20 +9,19 @@ the information transmitted by legitimate satellites: military signals are
 encrypted before transmission with schemes that allow only an authorized and
 restricted set of users, but for the civil case such a restriction clashes with
 the idea of having an open signal accessible by anyone. Yet, leaving the
-transmitted data unprotected opens the door to various kinds of attack. To name
-a clear example, it suffices to think about spoofing the signal received by an
-aircraft, in a way that modifies its trajectory to achieve catastrophic
-consequences.
+transmitted data unprotected opens the door to various kinds of attack.
 
 \vspace{\baselineskip}
 
 It is with the introduction of a satellite constellation operated by the
 European Union under the name of Galileo that the topic of data authentication
-for open GNSS signal took a practical turn. Some authentication schemes have
-been developed on paper to suit the low data rate available, resulting in ESA
-releasing an update to Galileo's ICD to include an implementation of TESLA, a
-protocol suited to authenticate streams of data that makes no assumption on the
-time when a receiver starts receiving the radio signal.
+for open Global Navigation Satellite Systems (GNSS) signal took a practical
+turn. Some authentication schemes have been developed on paper to suit the low
+data rate available, resulting in the European Commission releasing an update to
+Galileo's Interface Control Document (ICD) to include an implementation of
+Timed Efficient Stream Loss-tolerant Authentication (TESLA), a protocol suited
+to authenticate streams of data that makes no assumption on the time when a
+receiver starts receiving the radio signal.
 
 In this paper a critical analysis of the proposed specification is performed, to
 understand the implications on the receiver side in terms of performance and

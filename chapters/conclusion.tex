@@ -6,11 +6,11 @@
 During the analysis a few aspects were highlighted that could benefit from
 future research. The first of them is related to the fact that even in an ideal
 situation where no errors are introduced in the transmission of data,
-authentication of the navigation message takes a time in the order of minutes.
-This is a constraint that might be too stringent for certain applications, and
-it would be interesting to understand what possibilities the current message
-structure offers in order to improve performances of a first authenticated
-position fix.
+authentication of the navigation message takes an interval of time in the order
+of minutes.  This is a constraint that might be too stringent for certain
+applications, and it would be interesting to understand what possibilities the
+current message structure offers in order to improve the timinthe timing of a first
+authenticated position fix.
 
 \vspace{\baselineskip}
 
@@ -26,7 +26,8 @@ security breach but realizes that a complete shutdown of the navigation
 operation is not possible. In that case, the receiver could either downgrade
 communication to the default non-secure protocol, or it could put the choice in
 the hands of the user (one example of this approach are browsers that fail to
-authenticate a server exposed through an HTTPS endpoint). Both of these choices
+authenticate a server exposed through an HTTPS endpoint, in which case the user
+is asked if they want to proceed or not). Both of these choices
 offer advantages and drawbacks. A complete discussion of those could provide
 clearer guidelines to receiver implementors, and eventually identify more
 sophisticated approaches to identify real security breaches and recoverable
@@ -47,7 +48,7 @@ implementors might face.
 Finally, one overarching aspect emerged in most of the point touched by the
 analysis conducted in this document. It is clear that the security of the
 overall protocol, as it is today, relies heavily on implementors to follow the
-security guidelines in order for it to be effective against the attacks it
+specification guidelines in order for it to be effective against the attacks it
 promises to block. As an example of this, let's consider clock synchronization:
 should receivers ignore or miscalculate the drift threshold, the receiver would
 be exposed to spoofing attacks that might be even subtler to identify as the
@@ -62,17 +63,17 @@ perform research on ways to overcome the external constraint by either using
 external aid in bringing the receiver in a state that matches the security
 conditions, or by working on an expansion of the protocol that could remove the
 constraint altogether. One idea could be for example to provide some form of
-authenticated time the receiver can use as a starting point to close its gap in
+authenticated time the receiver can use as a starting point to reduce the drift in
 clock synchronization. The time could be provided in a fashion similar to that
 of the DSM-KROOT, at a slower pace but authenticated in a way that's infeasible
-to tamper.
+to spoof.
 
 \section{Final words}
 
 While analyzing the OSNMA protocol for Galileo, a few distinct points became
 clear. This implementation of the TESLA protocol had a hard challenge in front:
 adding a layer of security on top of a protocol that is unidirectional with no
-guarantee of bi-directional communication possibilities and with an already low
+possibility of making it bi-directional and with an already low
 transmission rate. All of this required an effort that resulted in some
 adaptations of the original security scheme in order to support aspects like the
 presence of multiple transmitters, which weren't part of the design requirements

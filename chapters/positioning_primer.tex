@@ -6,8 +6,8 @@
 No matter the GNSS under analysis, the fundamental principles that make radio
 satellite navigation work are the same. In this chapter we'll describe the
 equations that make satellite navigation a reality; understanding these
-mechanics will be of importance when talking about the different ways of
-authenticating a navigation signal.
+mechanics will be of importance when talking about the challenges of
+implementing TESLA on the receiver side.
 
 \section{Overview of ranging through TOA measurements}
 To introduce the problem of satellite navigation, let's assume a generic actor
@@ -45,7 +45,7 @@ one being the actor's true position and the other being its mirror with respect
 to the beacons' plane. In order to uniquely determine its position, the actor
 can either perform a fourth measurement, or introduce other constraints in the
 equation that automatically exclude one of the two points. For example, for
-users on the Earth's surface, the point with lower altitude can be selected with
+users on the Earth's surface the point with lower altitude can be selected with
 no further measurement.
 
 \par
@@ -107,13 +107,13 @@ equation can be ignored, thus simplifying the model for the pseudorange to
   \rho = r + c(\delta_r)
 \end{equation}
 
-This transforms the original problem from having three variables to having four.
+This transforms the original problem from having three unknowns to having four.
 
 \section{Determining user's position}
 Solution of equation \ref{eq:pseudorange} yields the magnitude of a vector that
 represents the distance between transmitter and receiver. In reality, what we're
 interested in is identifying the coordinates of the receiver within a reference
-frame. To model this we can expand transforming $r$ in cartesian form. Given a
+frame. To model this we can transform $r$ in cartesian form. Given a
 receiver at position $(x_r, y_r, z_r)$ and a transmitter at position $(x_t, y_t,
 z_t)$, the pseudorange can be expressed as:
 \begin{equation} \label{eq:expandedpseudorange}
@@ -123,7 +123,7 @@ z_t)$, the pseudorange can be expressed as:
   \end{aligned}
 \end{equation}
 
-Given the problem contains four variables, we need a set of four equations to
+Given that the problem contains four variables, we need a set of four equations to
 obtained a closed solution. This is equivalent of obtaining ranges from four
 different satellites, which can be expressed with the set of equations
 
@@ -291,9 +291,9 @@ the capability of measuring a receiver's three-dimensional velocity, here
 denoted as $\bm{\dot u}$. This is generally determined using one of two
 techniques: either as an approximate derivative of the receiver position, taking
 the difference of two subsequent measurements and dividing it by the time
-elapsed between the two. This technique can provide satisfactory results if the
-receiver's velocity is nearly constant and if the errors in determining the two
-positions are small enough. For this reason most modern receivers use a
+elapsed between the two. This technique can provide satisfactory results only if
+the receiver's velocity is nearly constant and if the errors in determining the
+two positions are small enough. For this reason most modern receivers use a
 technique based on measurement of the carrier frequency and a precise estimation
 of the received Doppler frequency.
 
@@ -438,9 +438,9 @@ GTRF (Galileo Terrestrial Reference Frame).
 The GTRF is an independent realization of an international standard called ITRS
 (International Terrestrial Reference System) which defines a framework to
 describe geodetic reference frames. This framework is used to produce periodic
-updates to the ITRF; by Galileo system requirement the three-dimensional
-difference between a position in GTRF and the most recent ITRF should not exceed
-3cm.
+updates to the ITRF (International Terrestrial Reference Frame); by Galileo
+system requirement the three-dimensional difference between a position in GTRF
+and the most recent ITRF should not exceed 3cm.
 
 The purpose of such a reference frame is to define the Earth's surface by a
 closed equation representing an ellipsoid with a certain number of degrees of
